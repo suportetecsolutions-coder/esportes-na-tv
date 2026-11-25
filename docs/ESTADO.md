@@ -8,23 +8,13 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC e Rúgbi inclu�
 - Dados vêm de APIs; um robô no GitHub Actions atualiza a cada 30 min e publica no GitHub Pages.
 - **O site está sendo mudado** do repositório antigo `SOLUTIONS.TEC` para este repositório
   novo `esportes-na-tv` (para separar de outros projetos do dono). **A mudança não terminou.**
-- Hoje o site no ar ainda é o antigo: https://suportetecsolutions-coder.github.io/SOLUTIONS.TEC/
-- O novo será: https://suportetecsolutions-coder.github.io/esportes-na-tv/
+- **Site novo no ar (25/11, chat 2):** https://suportetecsolutions-coder.github.io/esportes-na-tv/
+  — cron-job.org já dispara a cada 30 min no repositório novo.
 
 ## 2. 🔴 Pendências do DONO (em ordem)
-1. **Terminar a mudança para o repositório novo** (`esportes-na-tv`):
-   1. Criar os 2 segredos em https://github.com/suportetecsolutions-coder/esportes-na-tv/settings/secrets/actions/new
-      - `FOOTBALL_DATA_KEY` = chave da football-data.org
-      - `API_FOOTBALL_KEY` = chave da API-Football (mesmo suspensa)
-   2. Ativar o Pages: https://github.com/suportetecsolutions-coder/esportes-na-tv/settings/pages → *Source* = **GitHub Actions**.
-   3. Rodar a 1ª vez: https://github.com/suportetecsolutions-coder/esportes-na-tv/actions → "Atualizar e publicar Esportes na TV" → **Run workflow** (leva 10–15 min).
-   4. Gerar **token novo** (só para `esportes-na-tv`, permissão **Actions: Read and write**) em
-      https://github.com/settings/personal-access-tokens/new e trocar no **cron-job.org** (job "Esportes na TV"):
-      - URL: `https://api.github.com/repos/suportetecsolutions-coder/esportes-na-tv/actions/workflows/esportes-na-tv.yml/dispatches`
-      - Header `Authorization`: `Bearer *` (trocar `*` pelo token novo)
-      - Request body: `{"ref":"main"}`
-      - TEST RUN tem que dar **204**.
-   5. Trocar o link no aplicativo da TV para o endereço novo (depois de ver funcionando).
+1. ✅ Mudança para o repositório novo **feita** (segredos, Pages e cron-job.org funcionando — conferido
+   no chat 2). Falta só: **trocar o link no aplicativo da TV** para
+   https://suportetecsolutions-coder.github.io/esportes-na-tv/ (se ainda não trocou).
 2. **Depois que o site novo funcionar:** deixar o repositório antigo `SOLUTIONS.TEC`
    **privado** (Settings → Danger Zone → Change visibility → Private) ou apagá-lo — o histórico
    dele ainda mostra documentos antigos de outro projeto. Apagar também o token antigo
@@ -56,8 +46,9 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC e Rúgbi inclu�
 - Confirmar que os **escudos de basquete/vôlei/handebol** (TheSportsDB, sufixo `/small`)
   aparecem — a correção foi publicada, mas o dono ainda não confirmou.
 - Se a API-Football voltar: conferir Libertadores/Copa do Brasil/Série B e as ligas extras.
-- Quando o site novo estiver no ar: conferir **F1, MMA/UFC e Rúgbi** com dados reais (só foram
-  testados com respostas simuladas) e o tempo de cada execução do robô nos logs do Actions.
+- Conferir nos próximos dias, em https://github.com/suportetecsolutions-coder/esportes-na-tv/actions ,
+  quanto dura cada execução (as que renovam tudo, a cada 6 h, levaram ~19 min por causa das
+  pausas 429 do TheSportsDB) e se o rúgbi mostra os jogos do fim de semana.
 - Atualizar este arquivo no fim de cada chat (verificação geral).
 
 ## 4. Como o sistema funciona
@@ -127,6 +118,17 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC e Rúgbi inclu�
   simuladas + Playwright (TV 1280×720, celular, setas/OK com códigos 20/22/23). **Não testado com dados reais.**
 - Ambiente do assistente: criado o ambiente de nuvem **"esportes-na-tv"** (só libera www.thesportsdb.com),
   separado do "tvb" (que guarda a credencial da API-Football e não deve ser usado).
+
+- **Conferido com dados reais (site novo no ar):** F1 mostra 10 próximos eventos (GP Qatar e
+  Abu Dhabi), MMA mostra UFC 335; rúgbi sem jogos de ontem a amanhã (normal no meio da semana).
+- Ajustes depois da conferência: rúgbi também ganhou **"📅 Próximos jogos"** (`"proximos": 0` =
+  só o próximo jogo de cada liga, 9 consultas a cada 6 h); aviso "Nenhum evento/jogo neste dia"
+  agora fica acima da lista de próximos.
+- **Workflow:** `cancel-in-progress` passou para `false`. Antes, uma execução longa (1ª com os
+  esportes novos, >30 min por pausas 429) era cancelada pelo disparo seguinte e perdia tudo.
+  Agora o disparo novo espera na fila.
+- Ambiente do assistente "esportes-na-tv" libera também `suportetecsolutions-coder.github.io`
+  (para ler os dados publicados).
 
 ## 6. 💡 Sugestões para evoluir (quando o dono quiser)
 - Traduzir nomes de países no local dos eventos (hoje aparece "Qatar", "United States", "Brazil").

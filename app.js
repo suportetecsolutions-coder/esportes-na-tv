@@ -58,7 +58,7 @@
   const palavra = n => (soEventos() ? (n === 1 ? 'evento' : 'eventos') : (n === 1 ? 'jogo' : 'jogos'));
   const SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
   const diaCurto = k => `${SEMANA[new Date(k + 'T12:00:00').getDay()]} ${k.slice(8)}/${k.slice(5, 7)}`;
-  // próximos eventos (F1/MMA): depois de amanhã, vindos de "_proximos" no arquivo do esporte
+  // próximos eventos/jogos (F1/MMA/rúgbi): depois de amanhã, vindos de "_proximos" no arquivo do esporte
   const proximos = () => [...escolhidos].flatMap(e => (ALL[e]?._proximos || []).map(g => ({ ...g, esporte: e })))
     .filter(g => g.data > dias().slice(-1)[0]).sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
   const aoVivo = g => g.status === 'aovivo';
@@ -127,11 +127,13 @@
     const grupo = (n, gs, titulo) => { const ao = gs.filter(aoVivo).length, f = fechados.has(n);
       return `<section class="grupo${f ? ' fechado' : ''}${titulo ? ' prox' : ''}" data-n="${esc(n)}"><div class="grupo-h" tabindex="0" role="button"><span class="seta">▾</span><h3>${esc(titulo || n)}</h3><small>${gs.length} ${palavra(gs.length)}</small>${ao ? `<span class="ao">${ao} ao vivo</span>` : ''}</div><div class="jogos">${gs.map(g => cartao(g, passado)).join('')}</div></section>`; };
     const prox = dia === 'agora' || escopo?.canal ? [] : filtrar(proximos());
-    $('#lista').innerHTML = ordem.map(n => grupo(n, grupos[n])).join('') + (prox.length ? grupo('_proximos', prox, '📅 Próximos eventos') : '');
-    $('#vazio').hidden = l.length > 0;
+    const aviso = !l.length && prox.length && !termo && filtro === 'todos'   // dia sem nada: avisa acima da lista de próximos
+      ? `<p class="vazio">${soEventos() ? 'Nenhum evento' : 'Nenhum jogo'} neste dia. Veja os próximos abaixo.</p>` : '';
+    $('#lista').innerHTML = aviso + ordem.map(n => grupo(n, grupos[n])).join('') + (prox.length ? grupo('_proximos', prox, soEventos() ? '📅 Próximos eventos' : '📅 Próximos jogos') : '');
+    $('#vazio').hidden = l.length > 0 || !!aviso;
     $('#vazio').textContent = !l.length && !termo && filtro === 'todos' && !escopo && dia !== 'agora' && ![...escolhidos].some(e => datasDe(ALL[e]).some(d => ALL[e][d].length) || ALL[e]?._proximos?.length)
       ? 'Ainda não há dados desse esporte. Eles aparecem assim que a fonte de dados estiver configurada.'
-      : soEventos() && !termo && filtro === 'todos' ? (prox.length ? 'Nenhum evento neste dia. Veja os próximos abaixo.' : 'Nenhum evento neste dia.') : 'Nenhuma partida encontrada com esse filtro.';
+      : !termo && filtro === 'todos' ? `${soEventos() ? 'Nenhum evento' : 'Nenhum jogo'} ${dia === 'agora' ? 'ao vivo agora' : 'neste dia'}.` : 'Nenhuma partida encontrada com esse filtro.';
     $('#recolher').textContent = ordem.length && ordem.every(n => fechados.has(n)) ? 'Expandir tudo' : 'Recolher tudo';
     volta();
   }

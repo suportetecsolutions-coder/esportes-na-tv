@@ -1,5 +1,5 @@
 {
-  "_ajuda": "Filtros dos esportes (API-Sports). 'paises': inclui toda liga desses paises. 'ligas': expressao regular com nomes de liga a incluir. Edite livremente. 'tsdb': ligas (id do TheSportsDB) usadas como reserva gratis quando a API-Sports esta sem chave ou bloqueada (limite gratis: 3 jogos por liga por dia). F1/MMA/rugbi usam so o TheSportsDB (sem 'host'). 'tipo': 'evento' = cartao sem 'time x time' + lista de proximos eventos ('proximos' = quantos dias a frente consultar).",
+  "_ajuda": "Filtros dos esportes (API-Sports). 'paises': inclui toda liga desses paises. 'ligas': expressao regular com nomes de liga a incluir. Edite livremente. 'tsdb': ligas (id do TheSportsDB) usadas como reserva gratis quando a API-Sports esta sem chave ou bloqueada (limite gratis: 3 jogos por liga por dia). F1/MMA/rugbi usam so o TheSportsDB (sem 'host'). 'tipo': 'evento' = cartao sem 'time x time' + lista de proximos eventos 'proximos' = quantos dias a frente consultar para a lista de proximos (0 = so o proximo jogo de cada liga).",
   "basquete": {
     "host": "v1.basketball.api-sports.io",
     "paises": [
@@ -59,6 +59,7 @@
     }
   },
   "rugbi": {
+    "proximos": 0,
     "tsdb": {
       "4714": "Seis Nações",
       "4986": "Rugby Championship",

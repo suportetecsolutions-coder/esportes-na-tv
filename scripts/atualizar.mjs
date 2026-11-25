@@ -1,5 +1,5 @@
 // Gera data/futebol.json, basquete.json, volei.json, handebol.json, f1.json, mma.json e rugbi.json (ontem, hoje, amanha - horario de Brasilia).
-// F1 e MMA ("tipo": "evento" em esportes.json) tambem levam "_proximos": eventos dos proximos dias (TheSportsDB).
+// Esportes com "proximos" em esportes.json (F1, MMA, rugbi) tambem levam "_proximos" (TheSportsDB).
 // Chaves (secrets do GitHub): FOOTBALL_DATA_KEY (futebol) e API_FOOTBALL_KEY (API-Sports: Libertadores/Copa do Brasil/Serie B + basquete/volei/handebol).
 // Sem chave, o arquivo correspondente nao e alterado.
 import { readFile, writeFile } from 'node:fs/promises';
@@ -160,7 +160,7 @@ const proxDia = d => new Date(new Date(d + 'T12:00:00Z').getTime() + 864e5).toIS
 async function proximosTSDB(id, cfg, anteriorBruto) {
   const velho = (anteriorBruto._proximos || []).filter(g => g.data > alvo[2]);
   if (agoraMs - (meta[id + 'Prox'] || 0) < 6 * HORA && anteriorBruto._proximos) return velho;
-  const dias = []; for (let d = proxDia(alvo[2]), i = 0; i < (cfg.proximos || 14); i++, d = proxDia(d)) dias.push(d);
+  const dias = []; for (let d = proxDia(alvo[2]), i = 0; i < (cfg.proximos ?? 14); i++, d = proxDia(d)) dias.push(d);   // 0 = só o próximo de cada liga
   const lista = [], vistos = new Set(); let falhas = 0, consultas = 0;
   for (const [lid, nome] of Object.entries(cfg.tsdb || {})) {
     for (const q of [...dias.map(d => `eventsday.php?d=${d}&l=${lid}`), `eventsnextleague.php?id=${lid}`]) {
@@ -210,7 +210,7 @@ for (const [id, cfg] of Object.entries(esportes)) {
   if (!cfg.host || !AKEY || pausaApi()) {   // F1/MMA/rúgbi: só TheSportsDB
     const anterior = await publicado(id);
     const out = await viaTSDB(id, cfg, anterior); ordena(out);
-    if (cfg.tipo === 'evento') out._proximos = await proximosTSDB(id, cfg, anterior);
+    if ('proximos' in cfg) out._proximos = await proximosTSDB(id, cfg, anterior);
     await salva(id, out);
     console.log(`${id} (TheSportsDB):`, alvo.map(d => `${d}: ${out[d].length}`).join(' | ')); continue;
   }
