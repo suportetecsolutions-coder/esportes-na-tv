@@ -13,8 +13,7 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC e Rúgbi inclu�
 
 ## 2. 🔴 Pendências do DONO (em ordem)
 1. ✅ Mudança para o repositório novo **feita** (segredos, Pages e cron-job.org funcionando — conferido
-   no chat 2). Falta só: **trocar o link no aplicativo da TV** para
-   https://suportetecsolutions-coder.github.io/esportes-na-tv/ (se ainda não trocou).
+   no chat 2). Link do aplicativo da TV **já trocado** pelo dono (25/11).
 2. **Depois que o site novo funcionar:** deixar o repositório antigo `SOLUTIONS.TEC`
    **privado** (Settings → Danger Zone → Change visibility → Private) ou apagá-lo — o histórico
    dele ainda mostra documentos antigos de outro projeto. Apagar também o token antigo
@@ -46,6 +45,8 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC e Rúgbi inclu�
 - Confirmar que os **escudos de basquete/vôlei/handebol** (TheSportsDB, sufixo `/small`)
   aparecem — a correção foi publicada, mas o dono ainda não confirmou.
 - Se a API-Football voltar: conferir Libertadores/Copa do Brasil/Série B e as ligas extras.
+- ⏰ **Conferência agendada para dom 29/11 às 15:30 (Brasília)**: F1 (GP do Qatar) e rúgbi de sábado
+  aparecendo em Ontem/Hoje com placar. Se o lembrete não chegar, fazer no próximo chat.
 - Conferir nos próximos dias, em https://github.com/suportetecsolutions-coder/esportes-na-tv/actions ,
   quanto dura cada execução (as que renovam tudo, a cada 6 h, levaram ~19 min por causa das
   pausas 429 do TheSportsDB) e se o rúgbi mostra os jogos do fim de semana.
