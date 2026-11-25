@@ -28,13 +28,13 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC, Rúgbi e corre
    Copa do Brasil, Séries B/C, Liga Europa, Conference, ligas europeias).
 8. ✅ **Controle remoto na TV:** dono confirmou em 25/11 (chat 2) que a navegação está OK (incluindo F1).
    Se aparecer problema no TV Box: abrir o link com `?debug=1` e mandar foto da faixa verde.
-9. Recomendado: gerar uma chave nova da football-data.org e trocar o segredo `FOOTBALL_DATA_KEY`.
+9. ✅ Chave nova da football-data gerada e segredo `FOOTBALL_DATA_KEY` trocado pelo dono (25/11); execução nº 15 confirmou que funciona.
 10. Recomendado: apagar o ambiente de nuvem antigo do assistente que guarda credencial de teste
     (o assistente usa só o ambiente "esportes-na-tv").
 11. **Regra de proteção da `main`** (ruleset) — recomendado pela auditoria; pedir ao assistente o passo a passo.
 12. Para o Contato e para o Pix: criar um **e-mail só do projeto** (por enquanto o Contato diz "em breve";
     o Pix ficou para depois — prioridade baixa, decidido pelo dono).
-13. Mais para frente: domínio próprio ou conta do GitHub com nome neutro (o endereço atual mostra o
+13. **Adiado pelo dono (25/11) — deixar como está por enquanto.** Mais para frente: domínio próprio ou conta do GitHub com nome neutro (o endereço atual mostra o
     nome da conta, ligado a outro negócio). No-IP grátis **não recomendado** (expira se não confirmar a
     cada 30 dias, não serve para anúncios). Ideia: criar primeiro o **e-mail só do projeto** — serve
     para Contato, Pix, nova conta neutra do GitHub e nova conta da football-data.
