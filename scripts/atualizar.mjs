@@ -1,4 +1,5 @@
-// Gera data/futebol.json, basquete.json, volei.json e handebol.json (ontem, hoje, amanha - horario de Brasilia).
+// Gera data/futebol.json, basquete.json, volei.json, handebol.json, f1.json, mma.json e rugbi.json (ontem, hoje, amanha - horario de Brasilia).
+// F1 e MMA ("tipo": "evento" em esportes.json) tambem levam "_proximos": eventos dos proximos dias (TheSportsDB).
 // Chaves (secrets do GitHub): FOOTBALL_DATA_KEY (futebol) e API_FOOTBALL_KEY (API-Sports: Libertadores/Copa do Brasil/Serie B + basquete/volei/handebol).
 // Sem chave, o arquivo correspondente nao e alterado.
 import { readFile, writeFile } from 'node:fs/promises';
@@ -127,46 +128,90 @@ async function tsdb(caminho) {   // pausa entre consultas e, se vier página de 
   }
   return null;
 }
+// F1: "Qatar Grand Prix Practice 1" -> GP Qatar / Treino Livre 1
+const SESSAO_F1 = [[/^practice\s*(\d)/i, 'Treino Livre $1'], [/^sprint (qualifying|shootout)/i, 'Classificação Sprint'], [/^sprint/i, 'Sprint'], [/^qualifying/i, 'Classificação'], [/^(race)?$/i, 'Corrida']];
+function nomeF1(txt) {
+  const m = /^(.*?)\s*Grand Prix\s*(.*)$/i.exec(txt || '');
+  if (!m) return { evento: txt, sessao: '' };
+  const [re, pt] = SESSAO_F1.find(([r]) => r.test(m[2].trim())) || [];
+  return { evento: `GP ${m[1]}`.trim(), sessao: re ? m[2].trim().replace(re, pt) : m[2].trim() };
+}
+// converte um evento do TheSportsDB no formato do site; devolve { d: data em Brasília, g: jogo/evento }
+function deTSDB(e, nome, cfg) {
+  const ts = e.strTimestamp ? new Date(e.strTimestamp.replace(/(\+00:00)?$/, '') + 'Z') : new Date(`${e.dateEvent}T${e.strTime || '00:00:00'}Z`);
+  if (isNaN(ts)) return null;
+  const st = (e.strStatus || '').trim(), h = e.intHomeScore, a = e.intAwayScore;
+  let g;
+  if (cfg.tipo === 'evento') {   // F1 / MMA: um evento, sem "time x time"
+    const local = [...new Set([e.strVenue, e.strCity, e.strCountry].map(x => (x || '').trim()).filter(Boolean))].join(' · ');
+    g = { liga: nome, rodada: cfg.etapa && e.intRound && e.intRound !== '0' ? `Etapa ${e.intRound}` : '', ...(cfg.f1 ? nomeF1(e.strEvent) : { evento: e.strEvent, sessao: '' }),
+      local, hora: horaSP(ts), canais: [], fonte: 'tsdb' };
+  } else g = { liga: nome, rodada: e.intRound && e.intRound !== '0' ? `Rodada ${e.intRound}` : '', casa: e.strHomeTeam, fora: e.strAwayTeam, hora: horaSP(ts),
+    logos: [e.strHomeTeamBadge ? e.strHomeTeamBadge + '/small' : null, e.strAwayTeamBadge ? e.strAwayTeamBadge + '/small' : null], canais: [], fonte: 'tsdb' };
+  if (/^(FT|AOT|AET|PEN|Match Finished|Finished)$/i.test(st)) { g.status = 'encerrado'; g.tempo = 'FIM'; }
+  else if (!st || /^(NS|Not Started|TBD|Postponed|Cancelled)$/i.test(st)) g.status = 'agendado';
+  else { g.status = 'aovivo'; g.tempo = /^HT$/i.test(st) ? 'INT' : st; }
+  if (g.casa && h != null && h !== '' && a != null && a !== '') g.placar = [+h, +a];
+  return { d: dataSP(ts), g, id: e.idEvent };
+}
+const proxDia = d => new Date(new Date(d + 'T12:00:00Z').getTime() + 864e5).toISOString().slice(0, 10);
+
+// "Próximos eventos" (F1/MMA): consulta dia a dia depois de amanhã (o plano grátis não lista o calendário inteiro)
+async function proximosTSDB(id, cfg, anteriorBruto) {
+  const velho = (anteriorBruto._proximos || []).filter(g => g.data > alvo[2]);
+  if (agoraMs - (meta[id + 'Prox'] || 0) < 6 * HORA && anteriorBruto._proximos) return velho;
+  const dias = []; for (let d = proxDia(alvo[2]), i = 0; i < (cfg.proximos || 14); i++, d = proxDia(d)) dias.push(d);
+  const lista = [], vistos = new Set(); let falhas = 0, consultas = 0;
+  for (const [lid, nome] of Object.entries(cfg.tsdb || {})) {
+    for (const q of [...dias.map(d => `eventsday.php?d=${d}&l=${lid}`), `eventsnextleague.php?id=${lid}`]) {
+      consultas++; const j = await tsdb(q);
+      if (!j) { falhas++; continue; }
+      for (const e of j.events || []) {
+        const x = deTSDB(e, nome, cfg);
+        if (!x || vistos.has(x.id) || x.d <= alvo[2]) continue;
+        vistos.add(x.id); lista.push({ ...x.g, data: x.d });
+      }
+    }
+  }
+  if (falhas === consultas) return velho;   // fonte fora do ar: mantém o que tinha
+  meta[id + 'Prox'] = agoraMs;
+  return lista.sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora)).slice(0, 40);
+}
+
 async function viaTSDB(id, cfg, anteriorBruto) {
   const anterior = {};
   for (const d of alvo) { const l = (anteriorBruto[d] || []).filter(g => g.fonte === 'tsdb'); if (l.length) anterior[d] = l; }
   const out = vazio(); const ligas = Object.entries(cfg.tsdb || {});
   const renovaHoje = agoraMs - (meta[id + 'Hoje'] || 0) > 55 * MIN, renovaOutros = agoraMs - (meta[id + 'Outros'] || 0) > 6 * HORA;
-  const renovar = alvo.filter(d => !anterior[d] || (d === alvo[1] ? renovaHoje : renovaOutros));
-  for (const d of alvo) if (!renovar.includes(d)) out[d] = anterior[d];
+  const feitos = (meta[id + 'Feitos'] || []).filter(d => alvo.includes(d));   // datas já consultadas (mesmo sem jogos)
+  const renovar = alvo.filter(d => !feitos.includes(d) || (d === alvo[1] ? renovaHoje : renovaOutros));
+  for (const d of alvo) if (!renovar.includes(d)) out[d] = anterior[d] || [];
   if (!renovar.length) return out;
   // a API trabalha em UTC: busca cada data UTC uma vez (as escolhidas + o dia seguinte) e separa pela data de Brasília
-  const prox = d => new Date(new Date(d + 'T12:00:00Z').getTime() + 864e5).toISOString().slice(0, 10);
-  const utc = [...new Set(renovar.flatMap(d => [d, prox(d)]))];
+  const utc = [...new Set(renovar.flatMap(d => [d, proxDia(d)]))];
   const vistos = new Set(); let falhas = 0;
   for (const [lid, nome] of ligas) for (const dia of utc) {
     const j = await tsdb(`eventsday.php?d=${dia}&l=${lid}`);
     if (!j) { falhas++; continue; }
     for (const e of j.events || []) {
-      if (vistos.has(e.idEvent)) continue; vistos.add(e.idEvent);
-      const ts = e.strTimestamp ? new Date(e.strTimestamp.replace(/(\+00:00)?$/, '') + 'Z') : new Date(`${e.dateEvent}T${e.strTime || '00:00:00'}Z`);
-      const d = isNaN(ts) ? null : dataSP(ts);
-      if (!renovar.includes(d)) continue;
-      const st = (e.strStatus || '').trim(), h = e.intHomeScore, a = e.intAwayScore;
-      const g = { liga: nome, rodada: e.intRound && e.intRound !== '0' ? `Rodada ${e.intRound}` : '', casa: e.strHomeTeam, fora: e.strAwayTeam, hora: horaSP(ts),
-        logos: [e.strHomeTeamBadge ? e.strHomeTeamBadge + '/small' : null, e.strAwayTeamBadge ? e.strAwayTeamBadge + '/small' : null], canais: [], fonte: 'tsdb' };
-      if (/^(FT|AOT|AET|PEN|Match Finished|Finished)$/i.test(st)) { g.status = 'encerrado'; g.tempo = 'FIM'; }
-      else if (!st || /^(NS|Not Started|TBD|Postponed|Cancelled)$/i.test(st)) g.status = 'agendado';
-      else { g.status = 'aovivo'; g.tempo = /^HT$/i.test(st) ? 'INT' : st; }
-      if (h != null && h !== '' && a != null && a !== '') g.placar = [+h, +a];
-      out[d].push(g);
+      const x = deTSDB(e, nome, cfg);
+      if (!x || vistos.has(x.id) || !renovar.includes(x.d)) continue;
+      vistos.add(x.id); out[x.d].push(x.g);
     }
   }
   for (const d of renovar) if (!out[d].length && anterior[d]) out[d] = anterior[d];   // não apaga o que já tinha se a fonte falhar
-  if (falhas < ligas.length * utc.length) for (const d of renovar) meta[id + (d === alvo[1] ? 'Hoje' : 'Outros')] = agoraMs;
+  if (falhas < ligas.length * utc.length) { for (const d of renovar) meta[id + (d === alvo[1] ? 'Hoje' : 'Outros')] = agoraMs; meta[id + 'Feitos'] = [...new Set([...feitos, ...renovar])]; }
   if (falhas) console.warn(`TheSportsDB (${id}): ${falhas} consultas sem resposta`);
   return out;
 }
 
 for (const [id, cfg] of Object.entries(esportes)) {
   if (id.startsWith('_')) continue;
-  if (!AKEY || pausaApi()) {
-    const out = await viaTSDB(id, cfg, await publicado(id)); ordena(out); await salva(id, out);
+  if (!cfg.host || !AKEY || pausaApi()) {   // F1/MMA/rúgbi: só TheSportsDB
+    const anterior = await publicado(id);
+    const out = await viaTSDB(id, cfg, anterior); ordena(out);
+    if (cfg.tipo === 'evento') out._proximos = await proximosTSDB(id, cfg, anterior);
+    await salva(id, out);
     console.log(`${id} (TheSportsDB):`, alvo.map(d => `${d}: ${out[d].length}`).join(' | ')); continue;
   }
   const anterior = await publicado(id);

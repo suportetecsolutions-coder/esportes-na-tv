@@ -1,9 +1,9 @@
 # Estado do projeto — Esportes na TV
 
-_Última verificação geral: 25/11/2026 (fim do chat 1)._
+_Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC e Rúgbi incluídos)._
 
 ## 1. Resumo em 5 linhas
-- Site de jogos (futebol, basquete, vôlei, handebol) **sem anúncios**, com horários, placares,
+- Site de jogos (futebol, basquete, vôlei, handebol, **Fórmula 1, MMA/UFC, rúgbi**) **sem anúncios**, com horários, placares,
   canais de TV (só futebol), escudos, navegação por controle remoto e rolagem automática.
 - Dados vêm de APIs; um robô no GitHub Actions atualiza a cada 30 min e publica no GitHub Pages.
 - **O site está sendo mudado** do repositório antigo `SOLUTIONS.TEC` para este repositório
@@ -56,13 +56,15 @@ _Última verificação geral: 25/11/2026 (fim do chat 1)._
 - Confirmar que os **escudos de basquete/vôlei/handebol** (TheSportsDB, sufixo `/small`)
   aparecem — a correção foi publicada, mas o dono ainda não confirmou.
 - Se a API-Football voltar: conferir Libertadores/Copa do Brasil/Série B e as ligas extras.
+- Quando o site novo estiver no ar: conferir **F1, MMA/UFC e Rúgbi** com dados reais (só foram
+  testados com respostas simuladas) e o tempo de cada execução do robô nos logs do Actions.
 - Atualizar este arquivo no fim de cada chat (verificação geral).
 
 ## 4. Como o sistema funciona
 | Parte | Onde | Observação |
 |---|---|---|
 | Site | `index.html`, `app.js`, `style.css` | Estático, sem build. |
-| Dados | `data/futebol.json`, `basquete.json`, `volei.json`, `handebol.json` | `{ "AAAA-MM-DD": [jogos] }` (ontem/hoje/amanhã, horário de Brasília). |
+| Dados | `data/futebol.json`, `basquete.json`, `volei.json`, `handebol.json`, `f1.json`, `mma.json`, `rugbi.json` | `{ "AAAA-MM-DD": [jogos] }` (ontem/hoje/amanhã, horário de Brasília). F1/MMA têm também `_proximos` (eventos dos 14 dias seguintes). |
 | Cota | `data/meta.json` | Horário da última consulta a cada API; pausa de 6 h se a API bloquear. |
 | Robô | `scripts/atualizar.mjs` | Roda no GitHub Actions. |
 | Publicação | `.github/workflows/esportes-na-tv.yml` | Jobs `montar` → `publicar` (Pages). Agendamento do GitHub (*/30) é só reserva. |
@@ -84,6 +86,16 @@ _Última verificação geral: 25/11/2026 (fim do chat 1)._
   quando a API-Sports está sem chave/bloqueada. Limites: **3 jogos por liga por dia**, sem NBB
   nem Superliga brasileira, placar atrasa, ~1 consulta a cada 4 s (o robô espera e tenta de novo se vier 429).
 
+- **F1, MMA/UFC e Rúgbi (chat 2)**: só TheSportsDB grátis (sem `host` em `esportes.json`).
+  F1 = liga 4370 (cada sessão é um item: Treino Livre, Classificação, Sprint, Corrida);
+  MMA = UFC 4443 + Jungle Fight 4604 (um item por evento, sem lista de lutas);
+  Rúgbi = Seis Nações 4714, Rugby Championship 4986, Copa do Mundo 4574, Champions Cup 4550,
+  Top 14 4430, Premiership 4414, URC 4446, Super Rugby 4551, Super Liga Americana 5169 (tem o Cobras/Brasil).
+  No grátis, `eventsseason` só traz os 15 primeiros eventos e `eventsnextleague` só 1 → "Próximos
+  eventos" é montado consultando dia a dia (14 dias), renovado a cada 6 h (`meta.f1Prox`, `mmaProx`).
+  O robô agora guarda em `meta.<esporte>Feitos` as datas já consultadas, para não repetir consultas
+  em dias sem jogos (antes isso acontecia a cada execução).
+
 ### Funções do site
 - Abas Agora / Ontem / Hoje / Amanhã; agrupar por Liga ou Horário; Recolher tudo; Seguir ★.
 - Páginas `#/ligas`, `#/liga/NOME`, `#/canais`, `#/canal/NOME`; busca no topo.
@@ -93,6 +105,8 @@ _Última verificação geral: 25/11/2026 (fim do chat 1)._
 - Rolagem automática ligada (`?auto=0` desliga, `&vel=35`, `&espera=20`); pausa 20 s ao apertar tecla.
 - Recarrega dados a cada 5 min; abre sempre em "Jogos"; tema claro/escuro; `?debug=1` mostra teclas.
 - Celular: busca em linha própria; neon só com teclado/controle.
+- F1/MMA: cartão de **evento** (nome, sessão, local 📍; sem escudos nem canais), título "Agenda de …"
+  e grupo **📅 Próximos eventos** no fim da lista (com dia da semana e data); ★ e controle funcionam.
 
 ## 5. Decisões e histórico (chat 1 — 24 e 25/11/2026)
 - Não replicar o futebolnatv por cópia (termos proíbem); usar APIs licenciadas.
@@ -108,8 +122,16 @@ _Última verificação geral: 25/11/2026 (fim do chat 1)._
 - OneFootball: não serve como fonte (só futebol, sem API pública); dono não quis links para ele.
 - Doação via Pix: chave aleatória esconde CPF/telefone, mas o nome do recebedor aparece.
 
+## 5b. Chat 2 (25/11/2026)
+- **Feito:** F1, MMA/UFC e Rúgbi no site e no robô (ver Fontes de dados). Testado com respostas
+  simuladas + Playwright (TV 1280×720, celular, setas/OK com códigos 20/22/23). **Não testado com dados reais.**
+- Ambiente do assistente: criado o ambiente de nuvem **"esportes-na-tv"** (só libera www.thesportsdb.com),
+  separado do "tvb" (que guarda a credencial da API-Football e não deve ser usado).
+
 ## 6. 💡 Sugestões para evoluir (quando o dono quiser)
-- ✅ **DECIDIDO PELO DONO (fim do chat 1): incluir AGORA só Fórmula 1, MMA/UFC e Rúgbi** (NFL, MLB e NHL ficaram
+- Traduzir nomes de países no local dos eventos (hoje aparece "Qatar", "United States", "Brazil").
+- MMA: a fonte grátis não traz as lutas do card; só o nome do evento.
+- ✅ (FEITO no chat 2) **DECIDIDO PELO DONO (fim do chat 1): incluir AGORA só Fórmula 1, MMA/UFC e Rúgbi** (NFL, MLB e NHL ficaram
   de fora por causa do limite de 3 jogos/liga/dia). Detalhes já verificados no TheSportsDB grátis:
   - **UFC**: liga id `4443`; cada evento vem como **um item só** (ex.: "UFC 335 Oliveira vs Lopes",
     horário UTC, local), sem a lista de lutas do card. Também existe **Jungle Fight** (MMA brasileiro), id `4604`.

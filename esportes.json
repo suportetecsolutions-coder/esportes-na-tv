@@ -1,5 +1,5 @@
 {
-  "_ajuda": "Filtros dos esportes (API-Sports). 'paises': inclui toda liga desses paises. 'ligas': expressao regular com nomes de liga a incluir. Edite livremente. 'tsdb': ligas (id do TheSportsDB) usadas como reserva gratis quando a API-Sports esta sem chave ou bloqueada (limite gratis: 3 jogos por liga por dia).",
+  "_ajuda": "Filtros dos esportes (API-Sports). 'paises': inclui toda liga desses paises. 'ligas': expressao regular com nomes de liga a incluir. Edite livremente. 'tsdb': ligas (id do TheSportsDB) usadas como reserva gratis quando a API-Sports esta sem chave ou bloqueada (limite gratis: 3 jogos por liga por dia). F1/MMA/rugbi usam so o TheSportsDB (sem 'host'). 'tipo': 'evento' = cartao sem 'time x time' + lista de proximos eventos ('proximos' = quantos dias a frente consultar).",
   "basquete": {
     "host": "v1.basketball.api-sports.io",
     "paises": [
@@ -39,6 +39,36 @@
       "4533": "Bundesliga de Handebol",
       "4536": "Liga Francesa de Handebol",
       "5135": "Liga Dinamarquesa de Handebol"
+    }
+  },
+  "f1": {
+    "tipo": "evento",
+    "f1": true,
+    "etapa": true,
+    "proximos": 14,
+    "tsdb": {
+      "4370": "Fórmula 1"
+    }
+  },
+  "mma": {
+    "tipo": "evento",
+    "proximos": 14,
+    "tsdb": {
+      "4443": "UFC",
+      "4604": "Jungle Fight"
+    }
+  },
+  "rugbi": {
+    "tsdb": {
+      "4714": "Seis Nações",
+      "4986": "Rugby Championship",
+      "4574": "Copa do Mundo de Rúgbi",
+      "4550": "Champions Cup (Europa)",
+      "4430": "Top 14 (França)",
+      "4414": "Premiership (Inglaterra)",
+      "4446": "United Rugby Championship",
+      "4551": "Super Rugby",
+      "5169": "Super Liga Americana"
     }
   }
 }

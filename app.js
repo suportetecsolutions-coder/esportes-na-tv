@@ -19,28 +19,32 @@
     futebol: { nome: 'Futebol', emoji: '⚽', arq: 'futebol' },
     basquete: { nome: 'Basquete', emoji: '🏀', arq: 'basquete' },
     volei: { nome: 'Vôlei', emoji: '🏐', arq: 'volei' },
-    handebol: { nome: 'Handebol', emoji: '🤾', arq: 'handebol' }
+    handebol: { nome: 'Handebol', emoji: '🤾', arq: 'handebol' },
+    f1: { nome: 'Fórmula 1', emoji: '🏎️', arq: 'f1', evento: true },
+    mma: { nome: 'MMA/UFC', emoji: '🥊', arq: 'mma', evento: true },
+    rugbi: { nome: 'Rúgbi', emoji: '🏉', arq: 'rugbi' }
   };
+  const datasDe = j => Object.keys(j || {}).filter(k => !k.startsWith('_'));   // "_proximos" não é uma data
   const ALL = {};                        // dados brutos por esporte
   let escolhidos = new Set(['futebol']); // esportes mostrando agora
-  const DESTAQUE = /Champions|Libertadores|Sul-Americana|Brasileir|Copa do Brasil|Liga Europa|Premier|Primera|Bundesliga|Serie A|NBA|NBB|Superliga|Euroleague/i;
+  const DESTAQUE = /Champions|Libertadores|Sul-Americana|Brasileir|Copa do Brasil|Liga Europa|Premier|Primera|Bundesliga|Serie A|NBA|NBB|Superliga|Euroleague|Fórmula 1|UFC|Seis Nações|Rugby Championship|Copa do Mundo/i;
 
   function dias() { return Object.keys(DATA).sort(); }
 
   // junta os esportes escolhidos num único DATA {data: [jogos]}
   function montaDATA() {
     const datas = new Set();
-    for (const e in ALL) Object.keys(ALL[e] || {}).forEach(d => datas.add(d));
+    for (const e in ALL) datasDe(ALL[e]).forEach(d => datas.add(d));
     if (!datas.size) [-1, 0, 1].forEach(n => datas.add(iso(new Date(hoje.getTime() + n * 864e5))));
     DATA = {};
     [...datas].sort().forEach(d => DATA[d] = []);
-    for (const e of escolhidos) for (const [d, arr] of Object.entries(ALL[e] || {})) (DATA[d] ||= []).push(...arr.map(g => ({ ...g, esporte: e })));
+    for (const e of escolhidos) for (const d of datasDe(ALL[e])) (DATA[d] ||= []).push(...ALL[e][d].map(g => ({ ...g, esporte: e })));
     for (const d in DATA) DATA[d].sort((a, b) => a.hora.localeCompare(b.hora) || a.liga.localeCompare(b.liga));
   }
   const soFutebol = () => escolhidos.size === 1 && escolhidos.has('futebol');
   function tituloPadrao() {
     if (soFutebol()) return 'Onde Assistir Futebol Hoje ao Vivo';
-    if (escolhidos.size === 1) return `Onde Assistir ${SPORTS[[...escolhidos][0]].nome} Hoje`;
+    if (escolhidos.size === 1) { const e = SPORTS[[...escolhidos][0]]; return e.evento ? `Agenda de ${e.nome}` : `Onde Assistir ${e.nome} Hoje`; }
     return 'Onde Assistir Esportes Hoje ao Vivo';
   }
 
@@ -49,29 +53,42 @@
     const img = url ? `<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : '';
     return `<span class="badge" style="background:hsl(${hue(n)} 55% 40%)">${esc(sigla(n))}${img}</span>`;
   }
-  const key = g => `${g.casa}|${g.fora}`;
+  const key = g => g.evento ? `${g.evento}|${g.sessao || ''}` : `${g.casa}|${g.fora}`;
+  const soEventos = () => [...escolhidos].every(e => SPORTS[e]?.evento);
+  const palavra = n => (soEventos() ? (n === 1 ? 'evento' : 'eventos') : (n === 1 ? 'jogo' : 'jogos'));
+  const SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+  const diaCurto = k => `${SEMANA[new Date(k + 'T12:00:00').getDay()]} ${k.slice(8)}/${k.slice(5, 7)}`;
+  // próximos eventos (F1/MMA): depois de amanhã, vindos de "_proximos" no arquivo do esporte
+  const proximos = () => [...escolhidos].flatMap(e => (ALL[e]?._proximos || []).map(g => ({ ...g, esporte: e })))
+    .filter(g => g.data > dias().slice(-1)[0]).sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
   const aoVivo = g => g.status === 'aovivo';
 
   function jogosDoDia() {
     let l = (DATA[dia] || []).slice();
     if (dia === 'agora') l = Object.values(DATA).flat().filter(aoVivo);
-    if (escopo?.liga) l = l.filter(g => g.liga === escopo.liga);
     if (escopo?.canal) l = l.filter(g => g.canais.some(c => c.nome === escopo.canal));
+    return filtrar(l);
+  }
+  function filtrar(l) {
+    if (escopo?.liga) l = l.filter(g => g.liga === escopo.liga);
     if (filtro === 'seguindo') l = l.filter(g => seguindo.has(key(g)) || seguindo.has(g.liga));
-    if (termo) { const t = norm(termo); l = l.filter(g => norm([g.casa, g.fora, g.liga, ...g.canais.map(c => c.nome + ' ' + (c.obs || ''))].join(' ')).includes(t)); }
+    if (termo) { const t = norm(termo); l = l.filter(g => norm([g.casa, g.fora, g.evento, g.sessao, g.local, g.liga, ...g.canais.map(c => c.nome + ' ' + (c.obs || ''))].filter(Boolean).join(' ')).includes(t)); }
     return l;
   }
 
   function cartao(g, passado) {
     const live = aoVivo(g);
     const hora = live ? `<div class="hora live">${esc(g.tempo)}<small>${g.hora || ''}</small></div>`
-      : `<div class="hora">${passado || g.status === 'encerrado' ? '<small>Encerrado</small>' : ''}${g.hora}</div>`;
+      : `<div class="hora">${g.data ? `<small>${diaCurto(g.data)}</small>` : passado || g.status === 'encerrado' ? '<small>Encerrado</small>' : ''}${g.hora}</div>`;
     const time = (n, i) => `<div class="time">${escudo(n, g.logos?.[i])}<span>${esc(n)}</span>${g.placar ? `<span class="esc">${g.placar[i]}</span>` : ''}</div>`;
+    const centro = g.evento   // F1/MMA: nome do evento, sessão e local (sem "time x time")
+      ? `<div class="times evento"><b class="ev-nome">${esc(g.evento)}</b>${g.sessao ? `<span class="ev-sessao">${esc(g.sessao)}</span>` : ''}${g.local ? `<small class="ev-local">📍 ${esc(g.local)}</small>` : ''}</div>`
+      : `<div class="times">${time(g.casa, 0)}${time(g.fora, 1)}</div>`;
     const canais = g.canais.length ? g.canais.map(c => `<span class="canal"><b>${esc(c.nome)}</b>${c.obs ? ` <small>(${esc(c.obs)})</small>` : ''}</span>`).join('')
       : g.esporte === 'futebol' ? '<span class="canal"><small>Sem transmissão informada</small></span>' : '';
     const on = seguindo.has(key(g));
     return `<article class="jogo" tabindex="0"><div class="comp">${soFutebol() ? '' : (SPORTS[g.esporte]?.emoji || '') + ' '}<b>${esc(g.liga)}</b>${g.rodada ? ' - ' + esc(g.rodada) : ''}</div>
-      <div class="meio">${hora}<div class="times">${time(g.casa, 0)}${time(g.fora, 1)}</div></div>
+      <div class="meio">${hora}${centro}</div>
       <div class="canais">${canais}</div>
       <button class="seguir${on ? ' on' : ''}" data-k="${esc(key(g))}" title="Seguir" aria-pressed="${on}">${on ? '★' : '☆'}</button></article>`;
   }
@@ -99,19 +116,22 @@
     const passado = dia < iso(hoje) && dia !== 'agora';
     const total = (DATA[dia] || []).length;
     const comCanais = escolhidos.has('futebol');
-    $('#sub').textContent = `${comCanais ? 'Horários e canais de TV e streaming' : 'Horários e placares'} ${escopo ? 'dos jogos' : 'de todos os jogos'} · ${dia === 'agora' || escopo || termo || filtro !== 'todos' ? l.length : total} jogos`;
+    const n = dia === 'agora' || escopo || termo || filtro !== 'todos' ? l.length : total;
+    $('#sub').textContent = soEventos() ? `Horários e locais dos eventos · ${n} ${palavra(n)}`
+      : `${comCanais ? 'Horários e canais de TV e streaming' : 'Horários e placares'} ${escopo ? 'dos jogos' : 'de todos os jogos'} · ${n} jogos`;
     let grupos = {};
     if (agrupar === 'liga') l.forEach(g => (grupos[g.liga] ||= []).push(g));
     else l.slice().sort((a, b) => a.hora.localeCompare(b.hora)).forEach(g => (grupos[g.hora] ||= []).push(g));
     const ordem = Object.keys(grupos).sort((a, b) => agrupar === 'hora' ? a.localeCompare(b)
       : (grupos[b].length - grupos[a].length) || a.localeCompare(b));
-    $('#lista').innerHTML = ordem.map(n => {
-      const gs = grupos[n], ao = gs.filter(aoVivo).length, f = fechados.has(n);
-      return `<section class="grupo${f ? ' fechado' : ''}" data-n="${esc(n)}"><div class="grupo-h" tabindex="0" role="button"><span class="seta">▾</span><h3>${esc(n)}</h3><small>${gs.length} jogo${gs.length > 1 ? 's' : ''}</small>${ao ? `<span class="ao">${ao} ao vivo</span>` : ''}</div><div class="jogos">${gs.map(g => cartao(g, passado)).join('')}</div></section>`;
-    }).join('');
+    const grupo = (n, gs, titulo) => { const ao = gs.filter(aoVivo).length, f = fechados.has(n);
+      return `<section class="grupo${f ? ' fechado' : ''}${titulo ? ' prox' : ''}" data-n="${esc(n)}"><div class="grupo-h" tabindex="0" role="button"><span class="seta">▾</span><h3>${esc(titulo || n)}</h3><small>${gs.length} ${palavra(gs.length)}</small>${ao ? `<span class="ao">${ao} ao vivo</span>` : ''}</div><div class="jogos">${gs.map(g => cartao(g, passado)).join('')}</div></section>`; };
+    const prox = dia === 'agora' || escopo?.canal ? [] : filtrar(proximos());
+    $('#lista').innerHTML = ordem.map(n => grupo(n, grupos[n])).join('') + (prox.length ? grupo('_proximos', prox, '📅 Próximos eventos') : '');
     $('#vazio').hidden = l.length > 0;
-    $('#vazio').textContent = !l.length && !termo && filtro === 'todos' && !escopo && dia !== 'agora' && ![...escolhidos].some(e => Object.values(ALL[e] || {}).some(arr => arr.length))
-      ? 'Ainda não há dados desse esporte. Eles aparecem assim que a fonte de dados estiver configurada.' : 'Nenhuma partida encontrada com esse filtro.';
+    $('#vazio').textContent = !l.length && !termo && filtro === 'todos' && !escopo && dia !== 'agora' && ![...escolhidos].some(e => datasDe(ALL[e]).some(d => ALL[e][d].length) || ALL[e]?._proximos?.length)
+      ? 'Ainda não há dados desse esporte. Eles aparecem assim que a fonte de dados estiver configurada.'
+      : soEventos() && !termo && filtro === 'todos' ? (prox.length ? 'Nenhum evento neste dia. Veja os próximos abaixo.' : 'Nenhum evento neste dia.') : 'Nenhuma partida encontrada com esse filtro.';
     $('#recolher').textContent = ordem.length && ordem.every(n => fechados.has(n)) ? 'Expandir tudo' : 'Recolher tudo';
     volta();
   }
@@ -135,7 +155,9 @@
     l = l.slice(0, 12);
     $('#destaques').hidden = !l.length;
     $('#destaques-titulo').textContent = `🔥 Destaques desta ${DIAS[hoje.getDay()]}`;
-    $('#destaques-lista').innerHTML = l.map(g => `<div class="dest" tabindex="0"><small>${esc(g.liga)}</small><small>${esc(g.rodada || '')}</small><div class="vs">${escudo(g.casa, g.logos?.[0])}<span class="hr${aoVivo(g) ? ' live' : ''}">${g.placar ? `${g.placar[0]}-${g.placar[1]}` : g.hora}</span>${escudo(g.fora, g.logos?.[1])}</div></div>`).join('');
+    $('#destaques-lista').innerHTML = l.map(g => g.evento
+      ? `<div class="dest" tabindex="0"><small>${esc(g.liga)}</small><small>${esc(g.sessao || g.rodada || '')}</small><div class="ev-dest"><b>${esc(g.evento)}</b><span class="hr${aoVivo(g) ? ' live' : ''}">${aoVivo(g) ? esc(g.tempo) : g.hora}</span></div></div>`
+      : `<div class="dest" tabindex="0"><small>${esc(g.liga)}</small><small>${esc(g.rodada || '')}</small><div class="vs">${escudo(g.casa, g.logos?.[0])}<span class="hr${aoVivo(g) ? ' live' : ''}">${g.placar ? `${g.placar[0]}-${g.placar[1]}` : g.hora}</span>${escudo(g.fora, g.logos?.[1])}</div></div>`).join('');
   }
 
   function lateral() {
@@ -158,7 +180,7 @@
     if (termo) { const t = norm(termo); itens = itens.filter(x => norm(x.n).includes(t)); }
     $('#cat-titulo').textContent = tipo === 'ligas' ? 'Ligas' : 'Programação dos canais';
     $('#cat-sub').textContent = tipo === 'ligas' ? 'Campeonatos com jogos entre ontem e amanhã' : 'Escolha um canal para ver os jogos que ele transmite';
-    $('#cat-grid').innerHTML = itens.map(x => `<a class="card" href="#/${tipo === 'ligas' ? 'liga' : 'canal'}/${encodeURIComponent(x.n)}"><span class="badge" style="background:hsl(${hue(x.n)} 55% 40%)">${esc(sigla(x.n))}</span><span><b>${esc(x.n)}</b><small>${x.total} jogo${x.total > 1 ? 's' : ''}</small></span>${x.ao ? `<span class="ao">${x.ao} ao vivo</span>` : ''}</a>`).join('');
+    $('#cat-grid').innerHTML = itens.map(x => `<a class="card" href="#/${tipo === 'ligas' ? 'liga' : 'canal'}/${encodeURIComponent(x.n)}"><span class="badge" style="background:hsl(${hue(x.n)} 55% 40%)">${esc(sigla(x.n))}</span><span><b>${esc(x.n)}</b><small>${x.total} ${palavra(x.total)}</small></span>${x.ao ? `<span class="ao">${x.ao} ao vivo</span>` : ''}</a>`).join('');
     $('#cat-vazio').hidden = itens.length > 0;
   }
 
@@ -176,7 +198,7 @@
     const v = $('#voltar'), h1 = $('#titulo-jogos');
     if ((tipo === 'liga' || tipo === 'canal') && val) {
       escopo = tipo === 'liga' ? { liga: val } : { canal: val };
-      h1.textContent = tipo === 'liga' ? `${val} — jogos` : `Jogos no ${val}`;
+      h1.textContent = tipo === 'liga' ? `${val} — ${soEventos() ? 'eventos' : 'jogos'}` : `Jogos no ${val}`;
       v.hidden = false; v.href = tipo === 'liga' ? '#/ligas' : '#/canais'; v.textContent = tipo === 'liga' ? '← Todas as ligas' : '← Todos os canais';
       document.title = h1.textContent + ' · Esportes na TV';
     } else { h1.textContent = tituloPadrao(); v.hidden = true; document.title = tituloPadrao(); }
@@ -436,7 +458,7 @@
     const lista = Object.keys(SPORTS);
     (await Promise.all(lista.map(pega))).forEach((j, i) => ALL[lista[i]] = j);
     // usa a data "central" do arquivo como hoje se a data real não existir nele
-    const ks = [...new Set(Object.values(ALL).flatMap(j => Object.keys(j)))].sort();
+    const ks = [...new Set(Object.values(ALL).flatMap(datasDe))].sort();
     if (ks.length && !ks.includes(iso(hoje))) hoje.setTime(new Date(ks[Math.floor(ks.length / 2)] + 'T12:00:00').getTime());
     if (primeira) {
       const p = new URLSearchParams(location.search).get('esporte');

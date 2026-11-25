@@ -89,6 +89,15 @@ footer p{margin:2px 0}.peq{font-size:12px}
 @media(min-width:768px){.canais{padding-left:68px}.jogo{grid-template-columns:1fr 18rem;align-items:center}.jogo .comp{grid-column:1/-1}.canais{padding-left:0;justify-content:flex-end}}
 .layout>*,.conteudo{min-width:0}
 .times{max-width:24rem}
+.times.evento{gap:2px;max-width:none}
+.ev-nome{font-size:15px;line-height:1.25}
+.ev-sessao{font-weight:600;font-size:14px}
+.ev-local{color:var(--muted);font-size:12px}
+.prox .hora{width:64px}
+.hora small{white-space:nowrap}
+.ev-dest{margin-top:8px;display:grid;gap:4px}
+.ev-dest b{font-size:13px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ev-dest .hr{font-weight:700}.ev-dest .hr.live{color:var(--live)}
 .dias,.ferramentas{max-width:100%}
 .icone{font-family:system-ui,sans-serif}
 
