@@ -109,6 +109,12 @@ _Última verificação geral: 25/11/2026 (fim do chat 1)._
 - Doação via Pix: chave aleatória esconde CPF/telefone, mas o nome do recebedor aparece.
 
 ## 6. 💡 Sugestões para evoluir (quando o dono quiser)
+- **PEDIDO DO DONO (fim do chat 1): incluir Fórmula 1, MMA/UFC, NFL, MLB (beisebol), NHL (hóquei) e rúgbi.**
+  Plano: usar o TheSportsDB grátis (a API-Sports está suspensa e não pode ser testada do ambiente
+  do assistente). F1 e UFC cabem bem no limite de 3 eventos/dia; NFL, MLB e NHL têm muitos jogos
+  por dia, então só 3 por liga apareceriam. F1 precisa de um cartão diferente (GP + treino/
+  classificação/corrida, sem "time x time"). Fazer em chat novo com **Opus / esforço médio**:
+  levantar IDs das ligas no TheSportsDB, testar, adicionar os esportes na pergunta/botões.
 - **Domínio próprio** (ex.: esportesnatv.com.br, ~R$40/ano): endereço mais fácil na TV e
   necessário para redes de anúncio.
 - **Ligas brasileiras de basquete/vôlei (NBB, Superliga)**: só com fonte paga — pesquisar a
