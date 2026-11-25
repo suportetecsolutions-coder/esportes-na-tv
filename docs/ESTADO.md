@@ -30,9 +30,8 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC e Rúgbi inclu�
    (football-data.org, TheSportsDB, API-Sports) e, de preferência, com domínio próprio.
 7. **Conferir os canais** em `canais.json` — vários são palpites (Libertadores, Sul-Americana,
    Copa do Brasil, Séries B/C, Liga Europa, Conference, ligas europeias).
-8. **Testar no TV Box** (app de IPTV) a navegação por controle e o neon. No navegador da Smart
-   TV já funcionou item a item; no app do TV Box não foi confirmado depois das correções.
-   Se não funcionar: abrir o link com `?debug=1` e mandar foto da faixa verde.
+8. ✅ **Controle remoto na TV:** dono confirmou em 25/11 (chat 2) que a navegação está OK (incluindo F1).
+   Se aparecer problema no TV Box: abrir o link com `?debug=1` e mandar foto da faixa verde.
 9. Opcional: gerar uma chave nova da football-data.org (a atual foi colada no chat 1; risco baixo).
 10. Opcional: no ambiente de nuvem do Claude ("tvb") ficou salva uma credencial de teste da
     API-Football e alguns sites liberados (futebolnatv, football-data, thesportsdb); dá para
