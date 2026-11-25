@@ -1,0 +1,7 @@
+{
+  "_ajuda": "Preencha 'chave' (de preferência uma chave aleatória do Pix), 'nome' (até 25 letras) e 'cidade' (até 15). Enquanto 'chave' estiver vazia, o botão Apoiar não aparece. Esta chave fica visível para qualquer pessoa que abrir o repositório.",
+  "pix": { "chave": "", "nome": "", "cidade": "" },
+  "titulo": "Apoie o Esportes na TV",
+  "texto": "Este site é gratuito e feito de forma independente. Se ele te ajuda, você pode contribuir com qualquer valor para mantê-lo no ar.",
+  "botao": "💚 Apoie com Pix"
+}

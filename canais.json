@@ -1,0 +1,169 @@
+{
+  "_ajuda": "Canais por campeonato (codigo da API). Edite livremente. 'jogos' sobrescreve por partida: chave 'Time da casa x Time de fora' (nomes como a API envia).",
+  "campeonatos": {
+    "BSA": [
+      {
+        "nome": "PREMIERE"
+      },
+      {
+        "nome": "GLOBO",
+        "obs": "jogos selecionados"
+      },
+      {
+        "nome": "SPORTV"
+      }
+    ],
+    "CL": [
+      {
+        "nome": "HBO MAX"
+      },
+      {
+        "nome": "TNT"
+      },
+      {
+        "nome": "SPACE"
+      }
+    ],
+    "PL": [
+      {
+        "nome": "ESPN"
+      },
+      {
+        "nome": "STAR+"
+      }
+    ],
+    "PD": [
+      {
+        "nome": "ESPN"
+      },
+      {
+        "nome": "DISNEY+"
+      }
+    ],
+    "BL1": [
+      {
+        "nome": "SPORTV"
+      }
+    ],
+    "SA": [
+      {
+        "nome": "ESPN"
+      },
+      {
+        "nome": "PARAMOUNT+"
+      }
+    ],
+    "FL1": [
+      {
+        "nome": "BEIN"
+      }
+    ],
+    "ELC": [
+      {
+        "nome": "ESPN"
+      }
+    ],
+    "PPL": [
+      {
+        "nome": "ESPN"
+      }
+    ],
+    "DED": [
+      {
+        "nome": "ESPN"
+      }
+    ],
+    "WC": [
+      {
+        "nome": "GLOBO"
+      },
+      {
+        "nome": "SPORTV"
+      },
+      {
+        "nome": "CAZETV"
+      }
+    ],
+    "EC": [
+      {
+        "nome": "GLOBO"
+      },
+      {
+        "nome": "SPORTV"
+      },
+      {
+        "nome": "CAZETV"
+      }
+    ],
+    "LIB": [
+      {
+        "nome": "GLOBO",
+        "obs": "jogos selecionados"
+      },
+      {
+        "nome": "ESPN"
+      },
+      {
+        "nome": "DISNEY+"
+      }
+    ],
+    "SUL": [
+      {
+        "nome": "ESPN"
+      },
+      {
+        "nome": "DISNEY+"
+      }
+    ],
+    "CDB": [
+      {
+        "nome": "GLOBO",
+        "obs": "jogos selecionados"
+      },
+      {
+        "nome": "SPORTV"
+      },
+      {
+        "nome": "PRIME VIDEO"
+      }
+    ],
+    "BSB": [
+      {
+        "nome": "SPORTV"
+      },
+      {
+        "nome": "PREMIERE"
+      }
+    ],
+    "UEL": [
+      {
+        "nome": "SBT",
+        "obs": "jogos selecionados"
+      },
+      {
+        "nome": "ESPN"
+      },
+      {
+        "nome": "DISNEY+"
+      }
+    ],
+    "UECL": [
+      {
+        "nome": "ESPN"
+      },
+      {
+        "nome": "DISNEY+"
+      }
+    ],
+    "BSC": [
+      {
+        "nome": "DAZN"
+      },
+      {
+        "nome": "BAND",
+        "obs": "jogos selecionados"
+      }
+    ]
+  },
+  "jogos": {}
+}

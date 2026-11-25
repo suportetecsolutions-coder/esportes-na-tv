@@ -1,0 +1,44 @@
+{
+  "_ajuda": "Filtros dos esportes (API-Sports). 'paises': inclui toda liga desses paises. 'ligas': expressao regular com nomes de liga a incluir. Edite livremente. 'tsdb': ligas (id do TheSportsDB) usadas como reserva gratis quando a API-Sports esta sem chave ou bloqueada (limite gratis: 3 jogos por liga por dia).",
+  "basquete": {
+    "host": "v1.basketball.api-sports.io",
+    "paises": [
+      "Brazil"
+    ],
+    "ligas": "NBA|WNBA|NBB|Euroleague|EuroCup|FIBA|Basketball Champions League|ACB|Olympic",
+    "tsdb": {
+      "4387": "NBA",
+      "4546": "EuroLeague",
+      "4549": "Copa do Mundo FIBA",
+      "5620": "EuroCup Feminina"
+    }
+  },
+  "volei": {
+    "host": "v1.volleyball.api-sports.io",
+    "paises": [
+      "Brazil"
+    ],
+    "ligas": "Superliga|Nations League|Champions League|CEV|World Championship|SuperLega|Plusliga|Olympic",
+    "tsdb": {
+      "4544": "Superliga Italiana",
+      "5619": "PlusLiga (Polônia)",
+      "5616": "Champions League de Vôlei",
+      "4582": "Liga A (França)",
+      "4545": "Superliga Russa"
+    }
+  },
+  "handebol": {
+    "host": "v1.handball.api-sports.io",
+    "paises": [
+      "Brazil"
+    ],
+    "ligas": "EHF|Champions League|World Championship|European Championship|Bundesliga|ASOBAL|Starligue|Olympic",
+    "tsdb": {
+      "4980": "Champions League de Handebol",
+      "5275": "Liga Europeia de Handebol",
+      "4533": "Bundesliga de Handebol",
+      "4536": "Liga Francesa de Handebol",
+      "5135": "Liga Dinamarquesa de Handebol"
+    }
+  }
+}

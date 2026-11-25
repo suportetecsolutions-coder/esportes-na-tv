@@ -1,0 +1,567 @@
+{
+ "2026-11-23": [
+  {
+   "liga": "Brasileirão Série A",
+   "rodada": "Rodada 36",
+   "casa": "Internacional",
+   "fora": "Vitória",
+   "canais": [
+    {
+     "nome": "PREMIERE 2"
+    },
+    {
+     "nome": "PREMIERE FC"
+    }
+   ],
+   "status": "agendado",
+   "hora": "19:30",
+   "placar": [
+    2,
+    5
+   ]
+  },
+  {
+   "liga": "Brasileirão Série A",
+   "rodada": "Rodada 36",
+   "casa": "Botafogo",
+   "fora": "São Paulo",
+   "canais": [
+    {
+     "nome": "PRIME VIDEO"
+    }
+   ],
+   "status": "agendado",
+   "hora": "20:00",
+   "placar": [
+    1,
+    1
+   ]
+  },
+  {
+   "liga": "Brasileirão Série A",
+   "rodada": "Rodada 36",
+   "casa": "Santos",
+   "fora": "Grêmio",
+   "canais": [
+    {
+     "nome": "SPORTV"
+    },
+    {
+     "nome": "PREMIERE 3"
+    }
+   ],
+   "status": "agendado",
+   "hora": "21:00",
+   "placar": [
+    0,
+    2
+   ]
+  },
+  {
+   "liga": "Campeonato Inglês",
+   "rodada": "Rodada 11",
+   "casa": "Brentford",
+   "fora": "Everton",
+   "canais": [
+    {
+     "nome": "ESPN"
+    },
+    {
+     "nome": "DISNEY+"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00",
+   "placar": [
+    4,
+    0
+   ]
+  },
+  {
+   "liga": "Campeonato Espanhol",
+   "rodada": "Rodada 13",
+   "casa": "Levante",
+   "fora": "Elche",
+   "canais": [
+    {
+     "nome": "CAZÉTV"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00",
+   "placar": [
+    1,
+    1
+   ]
+  },
+  {
+   "liga": "Campeonato Italiano",
+   "rodada": "Rodada 12",
+   "casa": "Monza",
+   "fora": "Fiorentina",
+   "canais": [
+    {
+     "nome": "SPORTYNET"
+    },
+    {
+     "nome": "YOUTUBE",
+     "obs": "SPORTYNET"
+    },
+    {
+     "nome": "DISNEY+"
+    }
+   ],
+   "status": "agendado",
+   "hora": "16:45",
+   "placar": [
+    3,
+    0
+   ]
+  },
+  {
+   "liga": "Campeonato Argentino",
+   "rodada": "Oitavas de Final",
+   "casa": "Gimnasia L.P.",
+   "fora": "Newells Old Boys",
+   "canais": [
+    {
+     "nome": "ESPN 4"
+    },
+    {
+     "nome": "DISNEY+"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00",
+   "placar": [
+    4,
+    2
+   ]
+  },
+  {
+   "liga": "MLS",
+   "rodada": "Oitavas de Final",
+   "casa": "St. Louis City",
+   "fora": "Los Angeles FC",
+   "canais": [
+    {
+     "nome": "APPLE TV"
+    }
+   ],
+   "status": "agendado",
+   "hora": "22:00",
+   "placar": [
+    3,
+    2
+   ]
+  },
+  {
+   "liga": "Campeonato Uruguaio",
+   "rodada": "Clausura - 15",
+   "casa": "Juventud",
+   "fora": "Defensor Sporting",
+   "canais": [
+    {
+     "nome": "DISNEY+"
+    }
+   ],
+   "status": "agendado",
+   "hora": "16:30",
+   "placar": [
+    0,
+    1
+   ]
+  },
+  {
+   "liga": "Campeonato Uruguaio",
+   "rodada": "Clausura - 15",
+   "casa": "Albion FC",
+   "fora": "Danubio",
+   "canais": [
+    {
+     "nome": "DISNEY+"
+    }
+   ],
+   "status": "agendado",
+   "hora": "19:30",
+   "placar": [
+    1,
+    1
+   ]
+  }
+ ],
+ "2026-11-24": [
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Bodo/Glimt",
+   "fora": "Lask Linz",
+   "canais": [
+    {
+     "nome": "SPACE"
+    },
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "aovivo",
+   "tempo": "INT",
+   "hora": "14:45",
+   "placar": [
+    0,
+    0
+   ]
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Galatasaray",
+   "fora": "Aston Villa",
+   "canais": [
+    {
+     "nome": "TNT"
+    },
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "aovivo",
+   "tempo": "INT",
+   "hora": "14:45",
+   "placar": [
+    0,
+    0
+   ]
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Arsenal",
+   "fora": "Borussia Dortmund",
+   "canais": [
+    {
+     "nome": "YOUTUBE",
+     "obs": "TNT SPORTS"
+    },
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Manchester City",
+   "fora": "Napoli",
+   "canais": [
+    {
+     "nome": "SPACE"
+    },
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "RB Leipzig",
+   "fora": "Lens",
+   "canais": [
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Feyenoord",
+   "fora": "FC Porto",
+   "canais": [
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Real Madrid",
+   "fora": "PSV Eindhoven",
+   "canais": [
+    {
+     "nome": "SBT"
+    },
+    {
+     "nome": "TNT"
+    },
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Slovan Bratislava",
+   "fora": "Real Betis",
+   "canais": [
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "como",
+   "fora": "AEK Athens FC",
+   "canais": [
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Brasileirão Série A",
+   "rodada": "Rodada 37",
+   "casa": "Chapecoense-sc",
+   "fora": "Palmeiras",
+   "canais": [
+    {
+     "nome": "RECORD"
+    },
+    {
+     "nome": "PREMIERE FC"
+    },
+    {
+     "nome": "CAZÉTV"
+    }
+   ],
+   "status": "agendado",
+   "hora": "18:00"
+  },
+  {
+   "liga": "Campeonato Escocês",
+   "rodada": "Rodada 12",
+   "casa": "Rangers",
+   "fora": "Aberdeen",
+   "canais": [
+    {
+     "nome": "YOUTUBE",
+     "obs": "GOL BRASIL"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  }
+ ],
+ "2026-11-25": [
+  {
+   "liga": "Brasileirão Série A",
+   "rodada": "Rodada 36",
+   "casa": "Atlético-MG",
+   "fora": "Corinthians",
+   "canais": [
+    {
+     "nome": "PREMIERE FC"
+    }
+   ],
+   "status": "agendado",
+   "hora": "20:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Slavia Praha",
+   "fora": "Villarreal",
+   "canais": [
+    {
+     "nome": "SPACE"
+    },
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "14:45"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Sabah FA",
+   "fora": "Barcelona",
+   "canais": [
+    {
+     "nome": "TNT"
+    },
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "14:45"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Lille",
+   "fora": "Bayern",
+   "canais": [
+    {
+     "nome": "SPACE"
+    },
+    {
+     "nome": "YOUTUBE",
+     "obs": "TNT SPORTS"
+    },
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "PSG",
+   "fora": "Roma",
+   "canais": [
+    {
+     "nome": "TNT"
+    },
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Sporting CP",
+   "fora": "Manchester United",
+   "canais": [
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Inter",
+   "fora": "VfB Stuttgart",
+   "canais": [
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Atletico Madrid",
+   "fora": "Viking",
+   "canais": [
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Shakhtar Donetsk",
+   "fora": "Fenerbahce",
+   "canais": [
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Champions League",
+   "rodada": "League Stage - 5",
+   "casa": "Club Brugge KV",
+   "fora": "Liverpool",
+   "canais": [
+    {
+     "nome": "HBO MAX"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  },
+  {
+   "liga": "Campeonato Argentino",
+   "rodada": "Oitavas de Final",
+   "casa": "Boca Juniors",
+   "fora": "Independ. Rivadavia",
+   "canais": [
+    {
+     "nome": "ESPN 4"
+    },
+    {
+     "nome": "DISNEY+"
+    }
+   ],
+   "status": "agendado",
+   "hora": "21:00"
+  },
+  {
+   "liga": "MLS",
+   "rodada": "Oitavas de Final",
+   "casa": "San Jose Earthquakes",
+   "fora": "Houston Dynamo",
+   "canais": [
+    {
+     "nome": "APPLE TV"
+    }
+   ],
+   "status": "agendado",
+   "hora": "00:00"
+  },
+  {
+   "liga": "Inglês 2ª Divisão",
+   "rodada": "Rodada 17",
+   "casa": "Stoke City",
+   "fora": "Millwall",
+   "canais": [
+    {
+     "nome": "ESPN 4"
+    },
+    {
+     "nome": "DISNEY+"
+    }
+   ],
+   "status": "agendado",
+   "hora": "17:00"
+  }
+ ]
+}
