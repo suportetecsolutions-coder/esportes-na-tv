@@ -109,7 +109,16 @@ _Última verificação geral: 25/11/2026 (fim do chat 1)._
 - Doação via Pix: chave aleatória esconde CPF/telefone, mas o nome do recebedor aparece.
 
 ## 6. 💡 Sugestões para evoluir (quando o dono quiser)
-- **PEDIDO DO DONO (fim do chat 1): incluir Fórmula 1, MMA/UFC, NFL, MLB (beisebol), NHL (hóquei) e rúgbi.**
+- ✅ **DECIDIDO PELO DONO (fim do chat 1): incluir AGORA só Fórmula 1, MMA/UFC e Rúgbi** (NFL, MLB e NHL ficaram
+  de fora por causa do limite de 3 jogos/liga/dia). Detalhes já verificados no TheSportsDB grátis:
+  - **UFC**: liga id `4443`; cada evento vem como **um item só** (ex.: "UFC 335 Oliveira vs Lopes",
+    horário UTC, local), sem a lista de lutas do card. Também existe **Jungle Fight** (MMA brasileiro), id `4604`.
+  - Não há fonte de MMA melhor que seja grátis e permitida (API-MMA = conta suspensa; ESPN/UFC.com/
+    Sherdog/Tapology não têm API liberada → não raspar).
+  - **Ideia aprovada para avaliar:** F1 e UFC têm eventos poucos dias por semana → mostrar
+    **"Próximos eventos"** (ex.: `eventsnextleague.php?id=`) em vez de só ontem/hoje/amanhã.
+  - F1: cartão próprio (GP + treino/classificação/corrida, sem "time x time"). IDs da F1 e do rúgbi ainda a levantar.
+- (Pedido original: Fórmula 1, MMA/UFC, NFL, MLB, NHL e rúgbi.)
   Plano: usar o TheSportsDB grátis (a API-Sports está suspensa e não pode ser testada do ambiente
   do assistente). F1 e UFC cabem bem no limite de 3 eventos/dia; NFL, MLB e NHL têm muitos jogos
   por dia, então só 3 por liga apareceriam. F1 precisa de um cartão diferente (GP + treino/
