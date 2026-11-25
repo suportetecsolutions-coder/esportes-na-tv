@@ -13,8 +13,7 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC, Rúgbi e corre
 1. ✅ Mudança para o repositório novo **feita** (segredos, Pages e cron-job.org funcionando — conferido
    no chat 2). Link do aplicativo da TV **já trocado** pelo dono (25/11).
 2. ✅ Repositório antigo deixado **privado** e **2FA** do GitHub ligado (dono, 25/11).
-   Falta: apagar o token antigo do cron (o que só valia para o repositório antigo) em
-   https://github.com/settings/personal-access-tokens
+   Token antigo do cron (`cron-esportes`) **apagado** pelo dono (25/11). Fica só o token "Esportes na TV".
 3. Guardar num lugar seguro a cópia de segurança do outro projeto (enviada no chat 1).
 4. **API-Football (conta suspensa):** aguardar resposta do suporte (pedido feito pelo chat do
    painel; não há e-mail de suporte confirmado). Se reativarem, nada a fazer. Se mandarem
@@ -36,7 +35,9 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC, Rúgbi e corre
 12. Para o Contato e para o Pix: criar um **e-mail só do projeto** (por enquanto o Contato diz "em breve";
     o Pix ficou para depois — prioridade baixa, decidido pelo dono).
 13. Mais para frente: domínio próprio ou conta do GitHub com nome neutro (o endereço atual mostra o
-    nome da conta, ligado a outro negócio).
+    nome da conta, ligado a outro negócio). No-IP grátis **não recomendado** (expira se não confirmar a
+    cada 30 dias, não serve para anúncios). Ideia: criar primeiro o **e-mail só do projeto** — serve
+    para Contato, Pix, nova conta neutra do GitHub e nova conta da football-data.
 
 ## 3. 🟡 Pendências do ASSISTENTE (próximo chat)
 - Conferir a 1ª execução depois das correções da auditoria (workflow com actions novas fixadas
