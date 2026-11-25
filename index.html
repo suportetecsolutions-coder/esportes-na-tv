@@ -3,16 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#16a34a">
+<meta name="theme-color" content="#15803d">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Esportes na TV</title>
-<meta name="description" content="Horários e canais de TV e streaming de todos os jogos de futebol de hoje. Sem anúncios.">
+<meta name="description" content="Horários, placares e canais de TV de futebol, basquete, vôlei, handebol, Fórmula 1, MMA/UFC e rúgbi. Sem anúncios.">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="topo">
   <div class="wrap topo-in">
-    <a class="logo" href="./" aria-label="Futebol na TV, início"><span class="bola">⚽</span><b>Esportes</b> na TV</a>
-    <form class="busca-topo" role="search" onsubmit="return false">
+    <a class="logo" href="./" aria-label="Esportes na TV, início"><span class="bola">⚽</span><b>Esportes</b> na TV</a>
+    <form class="busca-topo" role="search" id="busca-form">
       <label class="sr" for="q">Buscar time, liga ou canal</label>
       <input id="q" type="search" placeholder="Buscar time, liga ou canal…" autocomplete="off">
     </form>
@@ -55,7 +57,9 @@
         <a id="voltar" class="link" href="#/" hidden></a>
         <h1 id="titulo-jogos">Onde Assistir Futebol Hoje ao Vivo</h1>
         <p id="sub"></p>
+        <p id="atualizado" class="peq atualizado"></p>
       </div>
+      <p id="aviso-dados" class="aviso-dados" role="status" hidden></p>
 
       <div class="barra">
         <nav class="dias" id="dias"></nav>
@@ -81,7 +85,9 @@
 <footer>
   <div class="wrap">
     <p><b>Esportes na TV</b> — guia de jogos, horários e placares. Sem anúncios.</p>
-    <p class="peq">Projeto independente, sem vínculo com o site original.</p>
+    <p class="peq">Projeto independente, sem vínculo com ligas, clubes, emissoras ou organizadores. Nomes, marcas e escudos pertencem aos seus donos e aparecem só para identificar os eventos.</p>
+    <p class="peq">Horários e canais podem mudar: confirme na programação da emissora. Dados: football-data.org, TheSportsDB e API-Sports.</p>
+    <p class="peq"><a href="sobre.html">Sobre, termos de uso e privacidade</a></p>
   </div>
 </footer>
 

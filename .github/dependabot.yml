@@ -1,0 +1,6 @@
+# Avisa (abrindo um pedido de atualização) quando sair versão nova das actions usadas no workflow.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }

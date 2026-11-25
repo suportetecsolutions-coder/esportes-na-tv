@@ -6,11 +6,13 @@
   };
   const DIAS = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
   const PRINCIPAIS = ['Brasileirão Série A','Brasileirão Série B','Campeonato Alemão','Campeonato Espanhol','Campeonato Inglês','Champions League','Copa do Brasil','Copa Libertadores','UEFA Europa League'];
-  const iso = d => d.toISOString().slice(0, 10);
-  const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const hue = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
-  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const sigla = s => s.replace(/[^\p{L}\s]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
+  const FUSO = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' });
+  const iso = d => FUSO.format(d);   // AAAA-MM-DD no horário de Brasília (antes usava UTC: errava das 21h à meia-noite)
+  const semana = k => new Date(k + 'T12:00:00').getDay();          // dia da semana de uma data AAAA-MM-DD
+  const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const hue = s => { let h = 0; for (const c of String(s ?? '')) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const sigla = s => String(s ?? '').replace(/[^\p{L}\s]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
 
   let escopo = null, vista = 'jogos', DATA = {}, dia, filtro = 'todos', agrupar = store.get('agrupar', 'liga'), seguindo = new Set(store.get('seguindo', [])), fechados = new Set(), termo = '';
   const hoje = new Date();
@@ -24,7 +26,9 @@
     mma: { nome: 'MMA/UFC', emoji: '🥊', arq: 'mma', evento: true },
     rugbi: { nome: 'Rúgbi', emoji: '🏉', arq: 'rugbi' }
   };
-  const datasDe = j => Object.keys(j || {}).filter(k => !k.startsWith('_'));   // "_proximos" não é uma data
+  const datasDe = j => Object.keys(j || {}).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k) && Array.isArray(j[k]));   // só datas (não "_proximos")
+  // padroniza um jogo vindo do JSON: campos de texto nunca nulos, canais sempre lista (um dado estranho não derruba a lista toda)
+  const limpa = (g, e) => ({ ...g, esporte: e, liga: String(g?.liga ?? ''), hora: String(g?.hora ?? ''), canais: Array.isArray(g?.canais) ? g.canais.filter(c => c && c.nome) : [] });
   const ALL = {};                        // dados brutos por esporte
   let escolhidos = new Set(['futebol']); // esportes mostrando agora
   const DESTAQUE = /Champions|Libertadores|Sul-Americana|Brasileir|Copa do Brasil|Liga Europa|Premier|Primera|Bundesliga|Serie A|NBA|NBB|Superliga|Euroleague|Fórmula 1|UFC|Seis Nações|Rugby Championship|Copa do Mundo/i;
@@ -38,7 +42,7 @@
     if (!datas.size) [-1, 0, 1].forEach(n => datas.add(iso(new Date(hoje.getTime() + n * 864e5))));
     DATA = {};
     [...datas].sort().forEach(d => DATA[d] = []);
-    for (const e of escolhidos) for (const d of datasDe(ALL[e])) (DATA[d] ||= []).push(...ALL[e][d].map(g => ({ ...g, esporte: e })));
+    for (const e of escolhidos) for (const d of datasDe(ALL[e])) (DATA[d] ||= []).push(...ALL[e][d].filter(Boolean).map(g => limpa(g, e)));
     for (const d in DATA) DATA[d].sort((a, b) => a.hora.localeCompare(b.hora) || a.liga.localeCompare(b.liga));
   }
   const soFutebol = () => escolhidos.size === 1 && escolhidos.has('futebol');
@@ -50,47 +54,47 @@
 
   // escudo: logo do time (imagem) com iniciais coloridas como reserva
   function escudo(n, url) {
-    const img = url ? `<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : '';
+    const img = url ? `<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '';
     return `<span class="badge" style="background:hsl(${hue(n)} 55% 40%)">${esc(sigla(n))}${img}</span>`;
   }
   const key = g => g.evento ? `${g.evento}|${g.sessao || ''}` : `${g.casa}|${g.fora}`;
   const soEventos = () => [...escolhidos].every(e => SPORTS[e]?.evento);
   const palavra = n => (soEventos() ? (n === 1 ? 'evento' : 'eventos') : (n === 1 ? 'jogo' : 'jogos'));
   const SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
-  const diaCurto = k => `${SEMANA[new Date(k + 'T12:00:00').getDay()]} ${k.slice(8)}/${k.slice(5, 7)}`;
+  const diaCurto = k => `${SEMANA[semana(k)]} ${k.slice(8)}/${k.slice(5, 7)}`;
   // próximos eventos/jogos (F1/MMA/rúgbi): depois de amanhã, vindos de "_proximos" no arquivo do esporte
-  const proximos = () => [...escolhidos].flatMap(e => (ALL[e]?._proximos || []).map(g => ({ ...g, esporte: e })))
-    .filter(g => g.data > dias().slice(-1)[0]).sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
+  const proximos = () => [...escolhidos].flatMap(e => (Array.isArray(ALL[e]?._proximos) ? ALL[e]._proximos : []).filter(Boolean).map(g => limpa(g, e)))
+    .filter(g => typeof g.data === 'string' && g.data > dias().slice(-1)[0]).sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
   const aoVivo = g => g.status === 'aovivo';
 
   function jogosDoDia() {
     let l = (DATA[dia] || []).slice();
     if (dia === 'agora') l = Object.values(DATA).flat().filter(aoVivo);
-    if (escopo?.canal) l = l.filter(g => g.canais.some(c => c.nome === escopo.canal));
+    if (escopo?.canal) l = l.filter(g => (g.canais || []).some(c => c.nome === escopo.canal));
     return filtrar(l);
   }
   function filtrar(l) {
     if (escopo?.liga) l = l.filter(g => g.liga === escopo.liga);
     if (filtro === 'seguindo') l = l.filter(g => seguindo.has(key(g)) || seguindo.has(g.liga));
-    if (termo) { const t = norm(termo); l = l.filter(g => norm([g.casa, g.fora, g.evento, g.sessao, g.local, g.liga, ...g.canais.map(c => c.nome + ' ' + (c.obs || ''))].filter(Boolean).join(' ')).includes(t)); }
+    if (termo) { const t = norm(termo); l = l.filter(g => norm([g.casa, g.fora, g.evento, g.sessao, g.local, g.liga, ...(g.canais || []).map(c => c.nome + ' ' + (c.obs || ''))].filter(Boolean).join(' ')).includes(t)); }
     return l;
   }
 
   function cartao(g, passado) {
     const live = aoVivo(g);
-    const hora = live ? `<div class="hora live">${esc(g.tempo)}<small>${g.hora || ''}</small></div>`
-      : `<div class="hora">${g.data ? `<small>${diaCurto(g.data)}</small>` : passado || g.status === 'encerrado' ? '<small>Encerrado</small>' : ''}${g.hora}</div>`;
-    const time = (n, i) => `<div class="time">${escudo(n, g.logos?.[i])}<span>${esc(n)}</span>${g.placar ? `<span class="esc">${g.placar[i]}</span>` : ''}</div>`;
+    const hora = live ? `<div class="hora live">${esc(g.tempo)}<small>${esc(g.hora)}</small></div>`
+      : `<div class="hora">${g.data ? `<small>${esc(diaCurto(g.data))}</small>` : passado || g.status === 'encerrado' ? '<small>Encerrado</small>' : ''}${esc(g.hora)}</div>`;
+    const time = (n, i) => `<div class="time">${escudo(n, g.logos?.[i])}<span>${esc(n)}</span>${g.placar ? `<span class="esc">${esc(g.placar[i])}</span>` : ''}</div>`;
     const centro = g.evento   // F1/MMA: nome do evento, sessão e local (sem "time x time")
       ? `<div class="times evento"><b class="ev-nome">${esc(g.evento)}</b>${g.sessao ? `<span class="ev-sessao">${esc(g.sessao)}</span>` : ''}${g.local ? `<small class="ev-local">📍 ${esc(g.local)}</small>` : ''}</div>`
       : `<div class="times">${time(g.casa, 0)}${time(g.fora, 1)}</div>`;
-    const canais = g.canais.length ? g.canais.map(c => `<span class="canal"><b>${esc(c.nome)}</b>${c.obs ? ` <small>(${esc(c.obs)})</small>` : ''}</span>`).join('')
+    const canais = (g.canais || []).length ? (g.canais || []).map(c => `<span class="canal"><b>${esc(c.nome)}</b>${c.obs ? ` <small>(${esc(c.obs)})</small>` : ''}</span>`).join('')
       : g.esporte === 'futebol' ? '<span class="canal"><small>Sem transmissão informada</small></span>' : '';
     const on = seguindo.has(key(g));
     return `<article class="jogo" tabindex="0"><div class="comp">${soFutebol() ? '' : (SPORTS[g.esporte]?.emoji || '') + ' '}<b>${esc(g.liga)}</b>${g.rodada ? ' - ' + esc(g.rodada) : ''}</div>
       <div class="meio">${hora}${centro}</div>
       <div class="canais">${canais}</div>
-      <button class="seguir${on ? ' on' : ''}" data-k="${esc(key(g))}" title="Seguir" aria-pressed="${on}">${on ? '★' : '☆'}</button></article>`;
+      <button class="seguir${on ? ' on' : ''}" data-k="${esc(key(g))}" title="Seguir" aria-label="Seguir ${esc(g.evento ? `${g.evento} ${g.sessao || ''}` : `${g.casa} x ${g.fora}`)}" aria-pressed="${on}">${on ? '★' : '☆'}</button></article>`;
   }
 
   // quando a lista/botões são redesenhados, o item em foco some; guarda qual era e devolve o foco a ele
@@ -119,9 +123,9 @@
     const n = dia === 'agora' || escopo || termo || filtro !== 'todos' ? l.length : total;
     $('#sub').textContent = soEventos() ? `Horários e locais dos eventos · ${n} ${palavra(n)}`
       : `${comCanais ? 'Horários e canais de TV e streaming' : 'Horários e placares'} ${escopo ? 'dos jogos' : 'de todos os jogos'} · ${n} jogos`;
-    let grupos = {};
+    let grupos = Object.create(null);
     if (agrupar === 'liga') l.forEach(g => (grupos[g.liga] ||= []).push(g));
-    else l.slice().sort((a, b) => a.hora.localeCompare(b.hora)).forEach(g => (grupos[g.hora] ||= []).push(g));
+    else l.slice().sort((a, b) => String(a.hora).localeCompare(String(b.hora))).forEach(g => (grupos[g.hora] ||= []).push(g));
     const ordem = Object.keys(grupos).sort((a, b) => agrupar === 'hora' ? a.localeCompare(b)
       : (grupos[b].length - grupos[a].length) || a.localeCompare(b));
     const grupo = (n, gs, titulo) => { const ao = gs.filter(aoVivo).length, f = fechados.has(n);
@@ -143,10 +147,10 @@
     const ks = dias(), ao = Object.values(DATA).flat().filter(aoVivo).length;
     const SEM = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
     const nome = k => { const n = Math.round((new Date(k + 'T12:00:00') - new Date(iso(hoje) + 'T12:00:00')) / 864e5);
-      return n === 0 ? 'HOJE' : n === -1 ? 'ONTEM' : n === 1 ? 'AMANHÃ' : SEM[new Date(k + 'T12:00:00').getDay()]; };
+      return n === 0 ? 'HOJE' : n === -1 ? 'ONTEM' : n === 1 ? 'AMANHÃ' : SEM[semana(k)]; };
     const fmt = k => k.slice(8) + '/' + k.slice(5, 7);
     $('#dias').innerHTML = `<button data-d="agora"${dia === 'agora' ? ' class="on"' : ''}><span class="dot"></span>AGORA <small>${ao}</small></button>` +
-      ks.map(k => `<button data-d="${k}"${dia === k ? ' class="on"' : ''}>${nome(k)} <small>${fmt(k)}</small></button>`).join('');
+      ks.map(k => `<button data-d="${esc(k)}"${dia === k ? ' class="on"' : ''}>${nome(k)} <small>${esc(fmt(k))}</small></button>`).join('');
     volta();
   }
 
@@ -156,10 +160,10 @@
     if (l.length < 4) l = [...l, ...hj.filter(g => !l.includes(g))];
     l = l.slice(0, 12);
     $('#destaques').hidden = !l.length;
-    $('#destaques-titulo').textContent = `🔥 Destaques desta ${DIAS[hoje.getDay()]}`;
+    $('#destaques-titulo').textContent = `🔥 Destaques desta ${DIAS[semana(iso(hoje))]}`;
     $('#destaques-lista').innerHTML = l.map(g => g.evento
-      ? `<div class="dest" tabindex="0"><small>${esc(g.liga)}</small><small>${esc(g.sessao || g.rodada || '')}</small><div class="ev-dest"><b>${esc(g.evento)}</b><span class="hr${aoVivo(g) ? ' live' : ''}">${aoVivo(g) ? esc(g.tempo) : g.hora}</span></div></div>`
-      : `<div class="dest" tabindex="0"><small>${esc(g.liga)}</small><small>${esc(g.rodada || '')}</small><div class="vs">${escudo(g.casa, g.logos?.[0])}<span class="hr${aoVivo(g) ? ' live' : ''}">${g.placar ? `${g.placar[0]}-${g.placar[1]}` : g.hora}</span>${escudo(g.fora, g.logos?.[1])}</div></div>`).join('');
+      ? `<div class="dest" tabindex="0"><small>${esc(g.liga)}</small><small>${esc(g.sessao || g.rodada || '')}</small><div class="ev-dest"><b>${esc(g.evento)}</b><span class="hr${aoVivo(g) ? ' live' : ''}">${esc(aoVivo(g) ? g.tempo : g.hora)}</span></div></div>`
+      : `<div class="dest" tabindex="0"><small>${esc(g.liga)}</small><small>${esc(g.rodada || '')}</small><div class="vs">${escudo(g.casa, g.logos?.[0])}<span class="hr${aoVivo(g) ? ' live' : ''}">${esc(g.placar ? `${g.placar[0]}-${g.placar[1]}` : g.hora)}</span>${escudo(g.fora, g.logos?.[1])}</div></div>`).join('');
   }
 
   function lateral() {
@@ -175,7 +179,7 @@
   function catalogo(tipo) {
     const mapa = new Map();
     for (const g of todosJogos()) {
-      const nomes = tipo === 'ligas' ? [g.liga] : g.canais.map(c => c.nome);
+      const nomes = tipo === 'ligas' ? [g.liga] : (g.canais || []).map(c => c.nome);
       for (const n of nomes) { const x = mapa.get(n) || { n, total: 0, ao: 0, paises: new Set() }; x.total++; if (aoVivo(g)) x.ao++; mapa.set(n, x); }
     }
     let itens = [...mapa.values()].sort((a, b) => (b.total - a.total) || a.n.localeCompare(b.n));
@@ -188,7 +192,7 @@
 
   function rota() {
     const [, tipo, arg] = (location.hash || '#/').match(/^#\/([^/]*)\/?(.*)$/) || [];
-    const val = arg ? decodeURIComponent(arg) : '';
+    let val = ''; try { val = arg ? decodeURIComponent(arg) : ''; } catch { val = ''; }
     escopo = null; termo = $('#q').value = '';
     const nav = tipo === 'ligas' || tipo === 'liga' ? 'ligas' : tipo === 'canais' || tipo === 'canal' ? 'canais' : 'jogos';
     document.querySelectorAll('[data-nav]').forEach(a => a.dataset.nav === nav ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
@@ -222,6 +226,7 @@
     ns.every(n => fechados.has(n)) ? fechados.clear() : ns.forEach(n => fechados.add(n));
     render();
   };
+  $('#busca-form').addEventListener('submit', e => e.preventDefault());
   $('#q').oninput = e => { termo = e.target.value.trim(); vista === 'jogos' ? render() : catalogo(vista); };
   $('#tema').onclick = () => {
     const dark = document.documentElement.dataset.tema === 'escuro' || (!document.documentElement.dataset.tema && matchMedia('(prefers-color-scheme: dark)').matches);
@@ -455,13 +460,27 @@
   }
 
   // ---------- Dados (recarrega sozinho a cada 5 min) ----------
+  let meta = {};
+  function mostraAtualizado(m, velhos) {
+    const t = new Date(m?.atualizado || NaN), el = $('#atualizado'), av = $('#aviso-dados');
+    const ok = !isNaN(t);
+    const quando = ok ? new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(t).replace(',', ' às') : '';
+    el.textContent = ok ? `Atualizado em ${quando}` : '';
+    const atraso = ok ? Date.now() - t.getTime() : Infinity;
+    av.hidden = !(velhos || (ok && atraso > 2 * 3600e3));
+    av.textContent = `⚠️ Os dados podem estar desatualizados${ok ? ` (última atualização: ${quando})` : ''}. Horários e placares podem ter mudado.`;
+  }
   const pega = e => fetch(`data/${SPORTS[e].arq}.json?t=${Date.now()}`).then(r => r.ok ? r.json() : {}).catch(() => ({}));
   async function carregar(primeira) {
     const lista = Object.keys(SPORTS);
-    (await Promise.all(lista.map(pega))).forEach((j, i) => ALL[lista[i]] = j);
-    // usa a data "central" do arquivo como hoje se a data real não existir nele
+    (await Promise.all(lista.map(pega))).forEach((j, i) => ALL[lista[i]] = j && typeof j === 'object' ? j : {});
+    meta = await fetch(`data/meta.json?t=${Date.now()}`).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+    hoje.setTime(Date.now());
+    // se a data real não existir nos arquivos (robô parado), usa a data "central" deles, mas AVISA que estão desatualizados
     const ks = [...new Set(Object.values(ALL).flatMap(datasDe))].sort();
-    if (ks.length && !ks.includes(iso(hoje))) hoje.setTime(new Date(ks[Math.floor(ks.length / 2)] + 'T12:00:00').getTime());
+    const velhos = ks.length && !ks.includes(iso(hoje));
+    if (velhos) hoje.setTime(new Date(ks[Math.floor(ks.length / 2)] + 'T12:00:00').getTime());
+    mostraAtualizado(meta, velhos);
     if (primeira) {
       const p = new URLSearchParams(location.search).get('esporte');
       const pedido = (p || '').split(',').map(x => x.trim()).filter(x => SPORTS[x]);
@@ -472,6 +491,7 @@
     if (primeira) { if (location.hash) history.replaceState(null, '', location.pathname + location.search); dia = iso(hoje); rota(); if (!new URLSearchParams(location.search).get('esporte')) abrirEscolha(); }
     else { barraDias(); vista === 'jogos' ? render() : catalogo(vista); }
   }
+  addEventListener('error', e => { if (e.target?.matches?.('.badge img')) e.target.remove(); }, true);   // escudo que não carrega: ficam as iniciais
   iniciaApoio(); iniciaAnuncios();
   carregar(true).catch(e => { console.error(e); $('#lista').innerHTML = '<p class="vazio">Não foi possível carregar os dados.</p>'; });
   setInterval(() => carregar(false).catch(() => {}), 5 * 60 * 1000);

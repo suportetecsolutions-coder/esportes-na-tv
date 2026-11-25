@@ -36,14 +36,31 @@ async function publicado(nome) {
 const meta = { ...(await publicado('meta')) };
 const pausaApi = () => (meta.apiPausadaAte || 0) > agoraMs;
 const apiErro = e => { if (/suspend|access|requests/i.test(String(e))) { meta.apiPausadaAte = agoraMs + 6 * HORA; console.warn('API-Sports bloqueada (conta suspensa ou cota) — pausando chamadas por 6 h.'); } };
-const salva = (nome, out) => writeFile(new URL(`data/${nome}.json`, raiz), JSON.stringify(out, null, 1));
+// validação antes de publicar: escudos só https, placar só número, textos sempre texto (dados de API não viram código no site)
+const urlOk = u => typeof u === 'string' && /^https:\/\/[^\s"'<>\\]+$/.test(u) ? u : null;
+const numOk = x => x !== '' && x != null && Number.isFinite(+x) ? +x : null;
+const txt = x => x == null ? '' : String(x).slice(0, 200);
+function valida(g) {
+  if (!g || typeof g !== 'object') return null;
+  const v = { ...g };
+  for (const k of ['liga', 'rodada', 'casa', 'fora', 'hora', 'tempo', 'evento', 'sessao', 'local', 'data', 'status', 'fonte']) if (k in v) v[k] = txt(v[k]);
+  if ('logos' in v) v.logos = Array.isArray(v.logos) ? v.logos.slice(0, 2).map(urlOk) : [null, null];
+  if ('placar' in v) { const p = Array.isArray(v.placar) ? v.placar.map(numOk) : []; if (p.length === 2 && p.every(x => x != null)) v.placar = p; else delete v.placar; }
+  v.canais = Array.isArray(v.canais) ? v.canais.filter(c => c && c.nome).map(c => ({ ...c, nome: txt(c.nome), ...(c.obs ? { obs: txt(c.obs) } : {}) })) : [];
+  return v;
+}
+const salva = (nome, out) => {
+  if (nome !== 'meta') for (const k of Object.keys(out)) if (Array.isArray(out[k])) out[k] = out[k].map(valida).filter(Boolean);
+  return writeFile(new URL(`data/${nome}.json`, raiz), JSON.stringify(out, null, 1));
+};
+const LIMITE = () => AbortSignal.timeout(20000);   // nenhuma consulta trava o robô por mais de 20 s
 
 // ================= FUTEBOL =================
 if (!FD_KEY) console.log('FOOTBALL_DATA_KEY ausente: futebol nao alterado.');
-else {
+else try {
   const url = `https://api.football-data.org/v4/matches?dateFrom=${dataSP(dia(-2))}&dateTo=${dataSP(dia(2))}&competitions=${COMPETICOES.join(',')}`;
-  const r = await fetch(url, { headers: { 'X-Auth-Token': FD_KEY } });
-  if (!r.ok) { console.error('Erro football-data', r.status, await r.text()); process.exit(1); }
+  const r = await fetch(url, { headers: { 'X-Auth-Token': FD_KEY }, signal: LIMITE() });
+  if (!r.ok) throw new Error(`football-data respondeu ${r.status}: ${(await r.text()).slice(0, 200)}`);
   const { matches = [] } = await r.json();
   const out = vazio();
   for (const m of matches) {
@@ -86,7 +103,7 @@ else {
       const hojeD = d === alvo[1];
       if (pausaApi() || (hojeD ? !buscaHoje : !buscaOutros) && anterior[d]) { out[d].push(...doAnterior(d)); continue; }
       try {
-        const r2 = await fetch(`https://v3.football.api-sports.io/fixtures?date=${d}&timezone=${TZ}`, { headers: { 'x-apisports-key': AKEY } });
+        const r2 = await fetch(`https://v3.football.api-sports.io/fixtures?date=${d}&timezone=${TZ}`, { headers: { 'x-apisports-key': AKEY }, signal: LIMITE() });
         const j = await r2.json();
         if (!r2.ok || (j.errors && Object.keys(j.errors).length)) throw new Error(JSON.stringify(j.errors || r2.status));
         for (const f of j.response || []) {
@@ -106,6 +123,9 @@ else {
   ordena(out);
   await salva('futebol', out);
   console.log('futebol:', alvo.map(d => `${d}: ${out[d].length}`).join(' | '));
+} catch (e) {   // football-data fora do ar: mantém o futebol já publicado e segue com os outros esportes
+  console.warn('::warning::Futebol nao atualizado:', String(e).slice(0, 300));
+  const ant = await publicado('futebol'); if (Object.keys(ant).length) await salva('futebol', ant);
 }
 
 // ================= BASQUETE / VOLEI / HANDEBOL (API-Sports) =================
@@ -205,14 +225,13 @@ async function viaTSDB(id, cfg, anteriorBruto) {
   return out;
 }
 
-for (const [id, cfg] of Object.entries(esportes)) {
-  if (id.startsWith('_')) continue;
+async function atualizaEsporte(id, cfg) {
   if (!cfg.host || !AKEY || pausaApi()) {   // F1/MMA/rúgbi: só TheSportsDB
     const anterior = await publicado(id);
     const out = await viaTSDB(id, cfg, anterior); ordena(out);
     if ('proximos' in cfg) out._proximos = await proximosTSDB(id, cfg, anterior);
     await salva(id, out);
-    console.log(`${id} (TheSportsDB):`, alvo.map(d => `${d}: ${out[d].length}`).join(' | ')); continue;
+    console.log(`${id} (TheSportsDB):`, alvo.map(d => `${d}: ${out[d].length}`).join(' | ')); return;
   }
   const anterior = await publicado(id);
   const renovaHoje = agoraMs - (meta[id + 'Hoje'] || 0) > 55 * MIN, renovaOutros = agoraMs - (meta[id + 'Outros'] || 0) > 6 * HORA;
@@ -223,7 +242,7 @@ for (const [id, cfg] of Object.entries(esportes)) {
     if ((pausaApi() || !(hojeD ? renovaHoje : renovaOutros)) && anterior[d]) { out[d] = anterior[d]; continue; }
     if (pausaApi()) continue;
     try {
-      const r = await fetch(`https://${cfg.host}/games?date=${d}&timezone=${TZ}`, { headers: { 'x-apisports-key': AKEY } });
+      const r = await fetch(`https://${cfg.host}/games?date=${d}&timezone=${TZ}`, { headers: { 'x-apisports-key': AKEY }, signal: LIMITE() });
       const j = await r.json();
       if (!r.ok || (j.errors && Object.keys(j.errors).length)) throw new Error(JSON.stringify(j.errors || r.status));
       for (const x of j.response || []) {
@@ -248,6 +267,14 @@ for (const [id, cfg] of Object.entries(esportes)) {
   ordena(out);
   await salva(id, out);
   console.log(`${id}:`, alvo.map(d => `${d}: ${out[d].length}`).join(' | '), erro ? '(com falhas)' : '');
+}
+for (const [id, cfg] of Object.entries(esportes)) {
+  if (id.startsWith('_')) continue;
+  try { await atualizaEsporte(id, cfg); }
+  catch (e) {   // um esporte com erro não impede os outros; o arquivo publicado antes continua valendo
+    console.warn(`::warning::${id} nao atualizado:`, String(e).slice(0, 300));
+    const ant = await publicado(id); if (Object.keys(ant).length) await salva(id, ant);
+  }
 }
 
 meta.atualizado = new Date().toISOString();

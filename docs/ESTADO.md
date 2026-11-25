@@ -1,24 +1,21 @@
 # Estado do projeto — Esportes na TV
 
-_Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC e Rúgbi incluídos)._
+_Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC, Rúgbi e correções da auditoria)._
 
 ## 1. Resumo em 5 linhas
 - Site de jogos (futebol, basquete, vôlei, handebol, **Fórmula 1, MMA/UFC, rúgbi**) **sem anúncios**, com horários, placares,
   canais de TV (só futebol), escudos, navegação por controle remoto e rolagem automática.
 - Dados vêm de APIs; um robô no GitHub Actions atualiza a cada 30 min e publica no GitHub Pages.
-- **O site está sendo mudado** do repositório antigo `SOLUTIONS.TEC` para este repositório
-  novo `esportes-na-tv` (para separar de outros projetos do dono). **A mudança não terminou.**
 - **Site novo no ar (25/11, chat 2):** https://suportetecsolutions-coder.github.io/esportes-na-tv/
   — cron-job.org já dispara a cada 30 min no repositório novo.
 
 ## 2. 🔴 Pendências do DONO (em ordem)
 1. ✅ Mudança para o repositório novo **feita** (segredos, Pages e cron-job.org funcionando — conferido
    no chat 2). Link do aplicativo da TV **já trocado** pelo dono (25/11).
-2. **Depois que o site novo funcionar:** deixar o repositório antigo `SOLUTIONS.TEC`
-   **privado** (Settings → Danger Zone → Change visibility → Private) ou apagá-lo — o histórico
-   dele ainda mostra documentos antigos de outro projeto. Apagar também o token antigo
-   (`cron-esportes`, que só vale para `SOLUTIONS.TEC`) em https://github.com/settings/personal-access-tokens
-3. **Guardar a cópia de segurança** `TVAQUI.PRO-backup.zip` (enviada no chat 1) num lugar seguro.
+2. ✅ Repositório antigo deixado **privado** e **2FA** do GitHub ligado (dono, 25/11).
+   Falta: apagar o token antigo do cron (o que só valia para o repositório antigo) em
+   https://github.com/settings/personal-access-tokens
+3. Guardar num lugar seguro a cópia de segurança do outro projeto (enviada no chat 1).
 4. **API-Football (conta suspensa):** aguardar resposta do suporte (pedido feito pelo chat do
    painel; não há e-mail de suporte confirmado). Se reativarem, nada a fazer. Se mandarem
    chave nova, atualizar o segredo `API_FOOTBALL_KEY` no repositório novo.
@@ -32,15 +29,20 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC e Rúgbi inclu�
    Copa do Brasil, Séries B/C, Liga Europa, Conference, ligas europeias).
 8. ✅ **Controle remoto na TV:** dono confirmou em 25/11 (chat 2) que a navegação está OK (incluindo F1).
    Se aparecer problema no TV Box: abrir o link com `?debug=1` e mandar foto da faixa verde.
-9. Opcional: gerar uma chave nova da football-data.org (a atual foi colada no chat 1; risco baixo).
-10. Opcional: no ambiente de nuvem do Claude ("tvb") ficou salva uma credencial de teste da
-    API-Football e alguns sites liberados (futebolnatv, football-data, thesportsdb); dá para
-    remover nas configurações do ambiente.
+9. Recomendado: gerar uma chave nova da football-data.org e trocar o segredo `FOOTBALL_DATA_KEY`.
+10. Recomendado: apagar o ambiente de nuvem antigo do assistente que guarda credencial de teste
+    (o assistente usa só o ambiente "esportes-na-tv").
+11. **Regra de proteção da `main`** (ruleset) — recomendado pela auditoria; pedir ao assistente o passo a passo.
+12. Para o Contato e para o Pix: criar um **e-mail só do projeto** (por enquanto o Contato diz "em breve";
+    o Pix ficou para depois — prioridade baixa, decidido pelo dono).
+13. Mais para frente: domínio próprio ou conta do GitHub com nome neutro (o endereço atual mostra o
+    nome da conta, ligado a outro negócio).
 
 ## 3. 🟡 Pendências do ASSISTENTE (próximo chat)
-- Quando o dono terminar a mudança: conferir a execução no repositório novo, o site novo
-  no ar, e se o cron-job.org está disparando a cada 30 min (Actions → eventos *workflow_dispatch*).
-  A 1ª execução (antes dos segredos/Pages) **falhou como esperado**.
+- Conferir a 1ª execução depois das correções da auditoria (workflow com actions novas fixadas
+  por SHA: checkout v7, setup-node v7, upload-pages-artifact v5, configure-pages v6, deploy-pages v5).
+- Correções da auditoria que ficaram para depois: aviso "confira o recebedor" no Pix (quando o Pix
+  for ativado); anúncios (tirar `allow-popups-to-escape-sandbox`, redes confiáveis, bloquear apostas).
 - Confirmar que os **escudos de basquete/vôlei/handebol** (TheSportsDB, sufixo `/small`)
   aparecem — a correção foi publicada, mas o dono ainda não confirmou.
 - Se a API-Football voltar: conferir Libertadores/Copa do Brasil/Série B e as ligas extras.
@@ -113,11 +115,30 @@ _Última verificação geral: 25/11/2026 (chat 2 — F1, MMA/UFC e Rúgbi inclu�
 - OneFootball: não serve como fonte (só futebol, sem API pública); dono não quis links para ele.
 - Doação via Pix: chave aleatória esconde CPF/telefone, mas o nome do recebedor aparece.
 
+## 5c. Auditoria (chat 2, 25/11/2026 — Opus / esforço alto, só leitura)
+- Sem achado crítico: nenhum segredo/dado pessoal no código nem no histórico; commits como "Claude".
+- Relatório completo **não foi publicado** (repo público); ficou só no ambiente do assistente.
+- **Corrigido no código:** data "HOJE" no fuso de Brasília (antes errava das 21h à meia-noite);
+  "Atualizado em…" + aviso amarelo se dados tiverem mais de 2 h; robô não para mais se uma fonte
+  falhar (mantém o publicado daquele esporte), timeouts em todas as consultas; validação dos dados
+  antes de publicar (escudo só `https://`, placar só número); escape de todos os textos no site e
+  dados nulos não derrubam a lista; CSP + referrer; sem código embutido em atributos; workflow com
+  permissões por job, `persist-credentials: false`, `timeout-minutes`, actions fixadas por SHA
+  (sem aviso de Node 20) e Dependabot; agendamento reserva do GitHub a cada 3 h (o cron-job.org
+  continua a cada 30 min); só publica os arquivos usados; exemplo de futebol (possível cópia de
+  terceiros) trocado por `{}`; página **sobre.html** (sobre, termos, privacidade/LGPD, marcas,
+  fontes, contato "em breve"); rodapé com aviso de marcas e "confirme na emissora"; contraste do
+  verde (#15803d), estrela e contorno escuro do neon no tema claro; `aria-label` na ★; licença MIT
+  completa do qrcode.js; README reescrito; STAR+ → DISNEY+ (Star+ foi incorporado ao Disney+ em 2024).
+- **Pendente (jurídico, para o dono decidir/confirmar):** termos de uso comercial das fontes de
+  dados antes de anúncios; tributação de doações por Pix (contador); pesquisar a marca no INPI antes
+  de domínio/anúncios.
+
 ## 5b. Chat 2 (25/11/2026)
 - **Feito:** F1, MMA/UFC e Rúgbi no site e no robô (ver Fontes de dados). Testado com respostas
   simuladas + Playwright (TV 1280×720, celular, setas/OK com códigos 20/22/23). **Não testado com dados reais.**
 - Ambiente do assistente: criado o ambiente de nuvem **"esportes-na-tv"** (só libera www.thesportsdb.com),
-  separado do "tvb" (que guarda a credencial da API-Football e não deve ser usado).
+  separado do ambiente antigo (que guarda credencial de teste e não deve ser usado).
 
 - **Conferido com dados reais (site novo no ar):** F1 mostra 10 próximos eventos (GP Qatar e
   Abu Dhabi), MMA mostra UFC 335; rúgbi sem jogos de ontem a amanhã (normal no meio da semana).
